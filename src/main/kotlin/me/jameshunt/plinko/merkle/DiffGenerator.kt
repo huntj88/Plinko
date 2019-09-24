@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 object DiffGenerator {
 
     fun getDiff(first: HashObject, second: HashNode): Map<String, Any> {
-        if (first.hash == second.hash) TODO("no diff")
-
         when (second) {
             is HashObject -> {
                 val unChanged = first.hObject.toList().filter { (keyA, nodeA) ->

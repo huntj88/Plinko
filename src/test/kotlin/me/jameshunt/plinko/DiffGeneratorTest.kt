@@ -325,12 +325,105 @@ class DiffGeneratorTest {
 
     @Test
     fun `add simple value to array`() {
-        TODO()
+        val before = """
+            {
+              "bob": []
+            }
+        """.toJsonHashObject()
+
+        val after = """
+            {
+              "bob": [
+                "hello"
+              ]
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+        println(actual)
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "3f7c9f23d16d571114ff34ab2adff983",
+                "to": "4258bd7cd50f560ae980ee3bcb54a394"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": "9f9d51bc70ef21ca5c14f307980a29d8"
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "d41d8cd98f00b204e9800998ecf8427e",
+                      "to": "69a329523ce1ec88bf63061863d9cb14"
+                    },
+                    "children": [
+                      {
+                        "hash": {
+                          "from": "d41d8cd98f00b204e9800998ecf8427e",
+                          "to": "5d41402abc4b2a76b9719d911017c592"
+                        },
+                        "type": "value"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                }
+              ],
+              "type": "object"
+            }
+        """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
     }
 
     @Test
     fun `add object to array`() {
         TODO()
+    }
+
+    @Test
+    fun `add array to object`() {
+        val before = "{}".toJsonHashObject()
+
+        val after = """
+            {
+              "bob": []
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+        println(actual)
+
+        //TODO: REMEMBER value hashes of new empty array for parsing
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "d41d8cd98f00b204e9800998ecf8427e",
+                "to": "3f7c9f23d16d571114ff34ab2adff983"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": {
+                      "from": "d41d8cd98f00b204e9800998ecf8427e",
+                      "to": "9f9d51bc70ef21ca5c14f307980a29d8"
+                    }
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "d41d8cd98f00b204e9800998ecf8427e",
+                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                    },
+                    "children": [],
+                    "type": "array"
+                  }
+                }
+              ],
+              "type": "object"
+            }
+        """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
     }
 
     @Test

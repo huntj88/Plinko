@@ -63,7 +63,7 @@ object DiffGenerator {
 
                     val valueChildren = when (removedNode) {
                         is HashObject -> getDiff(removedNode, HashObject(emptyOrNull, mapOf())) + objectType()
-                        is HashArray -> TODO() //getDiff(HashArray(emptyOrNull, listOf()), addedNode)
+                        is HashArray -> getDiff(removedNode, HashArray(emptyOrNull, listOf())) + arrayType()
                         is HashValue -> hashChanged(from = removedNode.hash, to = emptyOrNull) + valueType()
                         else -> throw IllegalStateException(removedNode.toString())
                     }

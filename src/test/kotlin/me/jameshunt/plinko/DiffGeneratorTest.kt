@@ -425,7 +425,71 @@ class DiffGeneratorTest {
 
     @Test
     fun `change object to array`() {
-        TODO()
+        val before = """
+            {
+              "bob": {"sup":true}
+            }
+        """.toJsonHashObject()
+        val after = """
+            {
+              "bob": ["no"]
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+        println(actual)
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "abcd124b36511a5af62422490e5d13d9",
+                "to": "c1815e107c43c151c0612628f220eace"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": "9f9d51bc70ef21ca5c14f307980a29d8"
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "4f2d996ad7ead823e6a6e73ffa074b1d",
+                      "to": "35c848caf5eba1d2551d2f1a67cf7618"
+                    },
+                    "children": [
+                      {
+                        "key": {
+                          "hash": {
+                            "from": "2eeecd72c567401e6988624b179d0b14",
+                            "to": "d41d8cd98f00b204e9800998ecf8427e"
+                          }
+                        },
+                        "value": {
+                          "hash": {
+                            "from": "b326b5062b2f0e69046810717534cb09",
+                            "to": "d41d8cd98f00b204e9800998ecf8427e"
+                          },
+                          "type": "value"
+                        }
+                      },
+                      {
+                        "hash": {
+                          "from": "d41d8cd98f00b204e9800998ecf8427e",
+                          "to": "7fa3b767c460b54a2be4d49030b349c7"
+                        },
+                        "type": "value"
+                      }
+                    ],
+                    "type": {
+                      "from": "object",
+                      "to": "array"
+                    }
+                  }
+                }
+              ],
+              "type": "object"
+            }
+        """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
     }
 
     @Test

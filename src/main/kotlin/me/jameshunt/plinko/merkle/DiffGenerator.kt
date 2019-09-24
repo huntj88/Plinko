@@ -136,7 +136,39 @@ object DiffGenerator {
                 println(ObjectMapper().writeValueAsString(actualDiff))
                 return actualDiff
             }
-            is HashArray -> TODO()
+            is HashArray -> {
+                val removedObjectDiff = first.hObject.map { (removedKey, removedNode) ->
+                    val keyMap = mapOf("key" to hashChanged(from = removedKey, to = emptyOrNull))
+
+                    val valueChildren = when (removedNode) {
+                        is HashObject -> getDiff(removedNode, HashObject(emptyOrNull, mapOf())) + objectType()
+                        is HashArray -> getDiff(removedNode, HashArray(emptyOrNull, listOf())) + arrayType()
+                        is HashValue -> hashChanged(from = removedNode.hash, to = emptyOrNull) + valueType()
+                        else -> throw IllegalStateException(removedNode.toString())
+                    }
+
+                    val valueMap =
+                        mapOf("value" to hashChanged(from = removedNode.hash, to = emptyOrNull) + valueChildren)
+
+                    keyMap + valueMap
+                }
+
+                val addedArrayDiff = second.hArray.map { addedChild ->
+                    when (addedChild) {
+                        is HashObject -> getDiff(HashObject(emptyOrNull, mapOf()), addedChild)
+                        is HashArray -> getDiff(HashArray(emptyOrNull, listOf()), addedChild)
+                        is HashValue -> hashChanged(from = emptyOrNull, to = addedChild.hash) + valueType()
+                        else -> throw IllegalStateException()
+                    }
+                }
+
+                return hashChanged(
+                    from = first.hash,
+                    to = second.hash
+                ) + mapOf("children" to removedObjectDiff + addedArrayDiff) + objectToArrayType()
+
+//                TODO()
+            }
             is HashValue -> {
                 val removedChildren =
                     getDiff(first, HashObject(emptyOrNull, mapOf()))["children"] as List<Map<String, Any>>
@@ -177,8 +209,6 @@ object DiffGenerator {
 
                     keyMap + valueMap
                 }
-
-                //todo add object "second"
 
                 hashChanged(
                     from = first.hash,

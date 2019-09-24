@@ -8,9 +8,10 @@ object DiffGenerator {
         when (second) {
             is HashObject -> {
                 val unChanged = first.hObject.toList().filter { (keyA, nodeA) ->
-                    val containsKey = second.hObject.containsKey(keyA)
-                    val containsValue = second.hObject.toList().map { it.second.hash }.contains(nodeA.hash)
-                    containsKey && containsValue
+                    second.hObject.toList()
+                        .firstOrNull { (keyB, nodeB) -> keyA == keyB && nodeA.hash == nodeB.hash }
+                        ?.let { (_, nodeB) -> nodeA == nodeB }
+                        ?: false
                 }
 
                 println(unChanged)
@@ -151,7 +152,39 @@ object DiffGenerator {
 
     private fun getDiff(first: HashArray, second: HashNode): Map<String, Any> {
         return when (second) {
-            is HashObject -> TODO()
+            is HashObject -> {
+
+                val removedArrayDiff = first.hArray.map { removedChild ->
+                    when (removedChild) {
+                        is HashObject -> getDiff(removedChild, HashObject(emptyOrNull, mapOf()))
+                        is HashArray -> getDiff(removedChild, HashArray(emptyOrNull, listOf()))
+                        is HashValue -> hashChanged(from = removedChild.hash, to = emptyOrNull) + valueType()
+                        else -> throw IllegalStateException()
+                    }
+                }
+
+                val addedObjectDiff = second.hObject.map { (addedKey, addedNode) ->
+                    val keyMap = mapOf("key" to hashChanged(from = emptyOrNull, to = addedKey))
+                    val valueChildren = when (addedNode) {
+                        is HashObject -> getDiff(HashObject(emptyOrNull, mapOf()), addedNode) + objectType()
+                        is HashArray -> getDiff(HashArray(emptyOrNull, listOf()), addedNode) + arrayType()
+                        is HashValue -> hashChanged(from = emptyOrNull, to = addedNode.hash) + valueType()
+                        else -> throw IllegalStateException(addedNode.toString())
+                    }
+
+                    val valueMap =
+                        mapOf("value" to hashChanged(from = emptyOrNull, to = addedNode.hash) + valueChildren)
+
+                    keyMap + valueMap
+                }
+
+                //todo add object "second"
+
+                hashChanged(
+                    from = first.hash,
+                    to = second.hash
+                ) + mapOf("children" to removedArrayDiff + addedObjectDiff) + arrayToObjectType()
+            }
             is HashArray -> {
                 val unChanged = first.hArray.intersect(second.hArray)
                 val removed = first.hArray.subtract(unChanged)

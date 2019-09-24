@@ -430,7 +430,117 @@ class DiffGeneratorTest {
 
     @Test
     fun `change array to object`() {
-        TODO()
+        val before = """
+            {
+              "bob": []
+            }
+        """.toJsonHashObject()
+        val after = """
+            {
+              "bob": {}
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+        println(actual)
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "3f7c9f23d16d571114ff34ab2adff983",
+                "to": "3f7c9f23d16d571114ff34ab2adff983"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": "9f9d51bc70ef21ca5c14f307980a29d8"
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "d41d8cd98f00b204e9800998ecf8427e",
+                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                    },
+                    "children": [],
+                    "type": {
+                      "from": "array",
+                      "to": "object"
+                    }
+                  }
+                }
+              ],
+              "type": "object"
+            }
+        """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
+    }
+
+    @Test
+    fun `change array (with values) to object (with values)`() {
+        val before = """
+            {
+              "bob": ["nope"]
+            }
+        """.toJsonHashObject()
+        val after = """
+            {
+              "bob": {"yep": true}
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+        println(actual)
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "04922aa55d3278b0dcbb7aafcfab1f09",
+                "to": "55f77324fe13e610f2f826e4224a765c"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": "9f9d51bc70ef21ca5c14f307980a29d8"
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "79c30748b84bd4f0fe1ddbc3dcd72969",
+                      "to": "fd669bc88dc8150fe352cecacfd615ba"
+                    },
+                    "children": [
+                      {
+                        "hash": {
+                          "from": "4101bef8794fed986e95dfb54850c68b",
+                          "to": "d41d8cd98f00b204e9800998ecf8427e"
+                        },
+                        "type": "value"
+                      },
+                      {
+                        "key": {
+                          "hash": {
+                            "from": "d41d8cd98f00b204e9800998ecf8427e",
+                            "to": "9348ae7851cf3ba798d9564ef308ec25"
+                          }
+                        },
+                        "value": {
+                          "hash": {
+                            "from": "d41d8cd98f00b204e9800998ecf8427e",
+                            "to": "b326b5062b2f0e69046810717534cb09"
+                          },
+                          "type": "value"
+                        }
+                      }
+                    ],
+                    "type": {
+                      "from": "array",
+                      "to": "object"
+                    }
+                  }
+                }
+              ],
+              "type": "object"
+            }
+        """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
     }
 
     @Test

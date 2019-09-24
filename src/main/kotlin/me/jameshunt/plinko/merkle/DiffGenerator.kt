@@ -167,10 +167,19 @@ object DiffGenerator {
                     }
                 }
 
+                val removedDiff = removed.map { removedChild ->
+                    when(removedChild) {
+                        is HashObject -> getDiff(removedChild, HashObject(emptyOrNull, mapOf()))
+                        is HashArray -> getDiff(removedChild, HashArray(emptyOrNull, listOf()))
+                        is HashValue -> hashChanged(from = removedChild.hash, to = emptyOrNull) + valueType()
+                        else -> throw IllegalStateException()
+                    }
+                }
+
                 hashChanged(
                     from = first.hash,
                     to = second.hash
-                ) + mapOf("children" to addedDiff) + arrayType()
+                ) + mapOf("children" to addedDiff + removedDiff) + arrayType()
             }
             is HashValue -> {
                 val removedChildren = getDiff(first, HashArray(emptyOrNull, listOf()))["children"] as List<Map<String, Any>>

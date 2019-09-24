@@ -243,7 +243,56 @@ class DiffGeneratorTest {
 
     @Test
     fun `change simple value to array`() {
-        TODO()
+        val before = """
+            {
+              "bob": "nope"
+            }
+        """.toJsonHashObject()
+
+        val after = """
+            {
+              "bob": [
+                "wow"
+              ]
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+        println(actual)
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "fc824db5d986fa9dbb2a1860d89a84c4",
+                "to": "776f5e468405ba973c11b750dc2d85b9"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": "9f9d51bc70ef21ca5c14f307980a29d8"
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "4101bef8794fed986e95dfb54850c68b",
+                      "to": "96cabca7a92e0ebe17f802ad6e592cb2"
+                    },
+                    "children": [
+                      {
+                        "hash": {
+                          "from": "d41d8cd98f00b204e9800998ecf8427e",
+                          "to": "bcedc450f8481e89b1445069acdc3dd9"
+                        },
+                        "type": "value"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                }
+              ],
+              "type": "object"
+            }
+            """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
     }
 
     @Test

@@ -197,7 +197,7 @@ object DiffGenerator {
     private fun getDiff(first: HashValue, second: HashNode): Map<String, Any> {
         return when(second) {
             is HashObject -> getDiff(HashObject(first.hash, emptyMap()), second) + objectType()
-            is HashArray -> TODO()
+            is HashArray -> getDiff(HashArray(first.hash, emptyList()), second) + arrayType()
             is HashValue -> mapOf<String, Any>() + valueType()// no children
             else -> throw IllegalStateException()
         }

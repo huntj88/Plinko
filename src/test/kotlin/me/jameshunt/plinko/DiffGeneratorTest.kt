@@ -200,7 +200,6 @@ class DiffGeneratorTest {
 
         val expectedDiff = """
             {
-              "type": "object",
               "hash": {
                 "from": "fc824db5d986fa9dbb2a1860d89a84c4",
                 "to": "55b879d5995f451e280b84f1a81f731a"
@@ -211,7 +210,6 @@ class DiffGeneratorTest {
                     "hash": "9f9d51bc70ef21ca5c14f307980a29d8"
                   },
                   "value": {
-                    "type": "object",
                     "hash": {
                       "from": "4101bef8794fed986e95dfb54850c68b",
                       "to": "873e8c183f74eed98d08f5ec2c2832e9"
@@ -226,16 +224,21 @@ class DiffGeneratorTest {
                         },
                         "value": {
                           "type": "value",
-                          "hash":{
-                            "from":"d41d8cd98f00b204e9800998ecf8427e",
-                            "to":"b326b5062b2f0e69046810717534cb09"
+                          "hash": {
+                            "from": "d41d8cd98f00b204e9800998ecf8427e",
+                            "to": "b326b5062b2f0e69046810717534cb09"
                           }
                         }
                       }
-                    ]
+                    ],
+                    "type": {
+                      "from": "value",
+                      "to": "object"
+                    }
                   }
                 }
-              ]
+              ],
+              "type": "object"
             }
         """.trimIndent().toDiffJson()
         Assert.assertEquals(expectedDiff, actual)
@@ -293,7 +296,10 @@ class DiffGeneratorTest {
                         }
                       }
                     ],
-                    "type": "value"
+                    "type": {
+                      "from": "object",
+                      "to": "value"
+                    }
                   }
                 }
               ],
@@ -347,7 +353,10 @@ class DiffGeneratorTest {
                         "type": "value"
                       }
                     ],
-                    "type": "array"
+                    "type": {
+                      "from": "value",
+                      "to": "array"
+                    }
                   }
                 }
               ],
@@ -401,7 +410,10 @@ class DiffGeneratorTest {
                         "type": "value"
                       }
                     ],
-                    "type": "array"
+                    "type": {
+                      "from": "array",
+                      "to": "value"
+                    }
                   }
                 }
               ],

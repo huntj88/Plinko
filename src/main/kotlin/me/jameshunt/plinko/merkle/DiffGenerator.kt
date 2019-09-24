@@ -113,7 +113,7 @@ object DiffGenerator {
                         val childDiffs = when(from) {
                             is HashObject -> getDiff(from, to)
                             is HashArray -> getDiff(from, to)
-                            is HashValue -> getDiff(from, to)
+                            is HashValue -> valueToObjectOrArray(from, to)
                             else -> throw IllegalStateException()
                         }
 
@@ -153,7 +153,7 @@ object DiffGenerator {
             is HashObject -> TODO()
             is HashArray -> {
                 val unChanged = first.hArray.intersect(second.hArray)
-                val removed = first.hArray.subtract(unChanged) // todo
+                val removed = first.hArray.subtract(unChanged)
                 val added = second.hArray.subtract(unChanged)
 
                 val addedDiff = added.map { addedChild ->
@@ -191,8 +191,7 @@ object DiffGenerator {
         }
     }
 
-    // basically handles changing from simpleValue to object/array
-    private fun getDiff(first: HashValue, second: HashNode): Map<String, Any> {
+    private fun valueToObjectOrArray(first: HashValue, second: HashNode): Map<String, Any> {
         return when(second) {
             is HashObject -> getDiff(HashObject(first.hash, emptyMap()), second) + objectType()
             is HashArray -> getDiff(HashArray(first.hash, emptyList()), second) + arrayType()

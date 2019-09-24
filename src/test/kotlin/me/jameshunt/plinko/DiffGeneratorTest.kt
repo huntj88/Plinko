@@ -248,22 +248,64 @@ class DiffGeneratorTest {
 
     @Test
     fun `change object to simple value`() {
-//        val before = """
-//            {
-//              "bob": {
-//                "wow": true
-//              }
-//            }
-//        """.toJsonHashObject()
-//
-//        val after = """
-//            {
-//              "bob": "nope"
-//            }
-//        """.toJsonHashObject()
-//
-//        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-//        println(actual)
+        val before = """
+            {
+              "bob": {
+                "wow": true
+              }
+            }
+        """.toJsonHashObject()
+
+        val after = """
+            {
+              "bob": "nope"
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+        println(actual)
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "55b879d5995f451e280b84f1a81f731a",
+                "to": "fc824db5d986fa9dbb2a1860d89a84c4"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": "9f9d51bc70ef21ca5c14f307980a29d8"
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "873e8c183f74eed98d08f5ec2c2832e9",
+                      "to": "4101bef8794fed986e95dfb54850c68b"
+                    },
+                    "children": [
+                      {
+                        "key": {
+                          "hash": {
+                            "from": "bcedc450f8481e89b1445069acdc3dd9",
+                            "to": "d41d8cd98f00b204e9800998ecf8427e"
+                          }
+                        },
+                        "value": {
+                          "hash": {
+                            "from": "b326b5062b2f0e69046810717534cb09",
+                            "to": "d41d8cd98f00b204e9800998ecf8427e"
+                          },
+                          "type": "value"
+                        }
+                      }
+                    ],
+                    "type": "value"
+                  }
+                }
+              ],
+              "type": "object"
+            }
+        """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
     }
 
     @Test

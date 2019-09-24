@@ -113,7 +113,7 @@ object DiffGenerator {
                         }
 
                         val childDiffs = when(from) {
-                            is HashObject -> getDiff(from, to) + objectType()
+                            is HashObject -> getDiff(from, to)
                             is HashArray -> TODO()
                             is HashValue -> getDiff(from, to)
                             else -> throw IllegalStateException()
@@ -139,10 +139,12 @@ object DiffGenerator {
             }
             is HashArray -> TODO()
             is HashValue -> {
+                val removedChildren = getDiff(first, HashObject(emptyOrNull, mapOf()))["children"] as List<Map<String, Any>>
 
-
-
-                TODO()
+                return hashChanged(
+                    from = first.hash,
+                    to = second.hash
+                ) + mapOf("children" to removedChildren) + valueType()
             }
             else -> throw IllegalStateException()
         }

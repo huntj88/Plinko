@@ -13,15 +13,15 @@ object DiffParser {
         val to = hash["to"] as String
 
         return when {
-            this.contains("objectChildren") -> ValueInfo.Object(
+            this["type"] == "object" -> ValueInfo.Object(
                 from = from,
                 to = to,
-                children = (this["objectChildren"] as List<Map<String, Any>>).parseObjectChildren()
+                children = (this["children"] as List<Map<String, Any>>).parseObjectChildren()
             )
-            this.contains("arrayChildren") -> ValueInfo.Array(
+            this["type"] == "array" -> ValueInfo.Array(
                 from = from,
                 to = to,
-                children = (this["arrayChildren"] as List<Map<String, Any>>).parseArrayChildren()
+                children = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
             )
             else -> return ValueInfo.Value(from = from, to = to)
         }

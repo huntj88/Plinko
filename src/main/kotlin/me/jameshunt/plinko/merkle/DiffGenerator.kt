@@ -46,9 +46,9 @@ object DiffGenerator {
                 val addedDiff = added.map { (addedKey, addedNode) ->
                     val keyMap = mapOf("key" to hashChanged(from = emptyOrNull, to = addedKey))
                     val valueChildren = when (addedNode) {
-                        is HashObject -> getDiff(HashObject(emptyOrNull, mapOf()), addedNode)
+                        is HashObject -> getDiff(HashObject(emptyOrNull, mapOf()), addedNode) + objectType()
                         is HashArray -> TODO() //getDiff(HashArray(emptyOrNull, listOf()), addedNode)
-                        is HashValue -> hashChanged(from = emptyOrNull, to = addedNode.hash)
+                        is HashValue -> hashChanged(from = emptyOrNull, to = addedNode.hash) + valueType()
                         else -> throw IllegalStateException(addedNode.toString())
                     }
 
@@ -62,9 +62,9 @@ object DiffGenerator {
                     val keyMap = mapOf("key" to hashChanged(from = removedKey, to = emptyOrNull))
 
                     val valueChildren = when (removedNode) {
-                        is HashObject -> getDiff(removedNode, HashObject(emptyOrNull, mapOf()))
+                        is HashObject -> getDiff(removedNode, HashObject(emptyOrNull, mapOf())) + objectType()
                         is HashArray -> TODO() //getDiff(HashArray(emptyOrNull, listOf()), addedNode)
-                        is HashValue -> hashChanged(from = removedNode.hash, to = emptyOrNull)
+                        is HashValue -> hashChanged(from = removedNode.hash, to = emptyOrNull) + valueType()
                         else -> throw IllegalStateException(removedNode.toString())
                     }
 
@@ -99,8 +99,8 @@ object DiffGenerator {
                     .groupBy { it.first }
                     .map { it.value }
                     .map {
-                        val key = it.first().first
                         assert(it.size == 2)
+                        val key = it.first().first
 
                         val from = when (first.hObject.containsValue(it.first().second)) {
                             true -> it[0].second
@@ -113,7 +113,7 @@ object DiffGenerator {
                         }
 
                         val childDiffs = when(from) {
-                            is HashObject -> getDiff(from, to)
+                            is HashObject -> getDiff(from, to) + objectType()
                             is HashArray -> TODO()
                             is HashValue -> getDiff(from, to)
                             else -> throw IllegalStateException()
@@ -132,13 +132,18 @@ object DiffGenerator {
                 val actualDiff = hashChanged(
                     from = first.hash,
                     to = second.hash
-                ) + mapOf("objectChildren" to (addedDiff + removedDiff + keyChangedDiff + valueChangedDiff))
+                ) + mapOf("children" to (addedDiff + removedDiff + keyChangedDiff + valueChangedDiff)) + objectType()
 
                 println(ObjectMapper().writeValueAsString(actualDiff))
                 return actualDiff
             }
             is HashArray -> TODO()
-            is HashValue -> TODO()
+            is HashValue -> {
+
+
+
+                TODO()
+            }
             else -> throw IllegalStateException()
         }
     }
@@ -146,9 +151,9 @@ object DiffGenerator {
     // basically handles changing from simpleValue to object/array
     private fun getDiff(first: HashValue, second: HashNode): Map<String, Any> {
         return when(second) {
-            is HashObject -> getDiff(HashObject(first.hash, emptyMap()), second)
+            is HashObject -> getDiff(HashObject(first.hash, emptyMap()), second) + objectType()
             is HashArray -> TODO()
-            is HashValue -> mapOf() // no children
+            is HashValue -> mapOf<String, Any>() + valueType()// no children
             else -> throw IllegalStateException()
         }
     }
@@ -161,4 +166,8 @@ object DiffGenerator {
     )
 
     private fun hashSame(hash: String): Map<String, String> = mapOf("hash" to hash)
+
+    private fun objectType(): Map<String, String> = mapOf("type" to "object")
+    private fun arrayType(): Map<String, String> = mapOf("type" to "array")
+    private fun valueType(): Map<String, String> = mapOf("type" to "value")
 }

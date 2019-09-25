@@ -28,7 +28,14 @@ class DiffGeneratorTest {
         val actual = DiffGenerator.getDiff(json, json).let { DiffParser.parseDiff(it) }
 
         val expectedDiff = """
-            
+            {
+              "hash": {
+                "from": "e3c38f42d8eca719ae2b293a518a2ba9",
+                "to": "e3c38f42d8eca719ae2b293a518a2ba9"
+              },
+              "children": [],
+              "type": "object"
+            }
         """.trimIndent().toDiffJson()
         Assert.assertEquals(expectedDiff, actual)
     }

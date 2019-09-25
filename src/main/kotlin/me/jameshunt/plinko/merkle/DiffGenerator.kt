@@ -1,11 +1,9 @@
 package me.jameshunt.plinko.merkle
 
-import com.fasterxml.jackson.databind.ObjectMapper
-
 object DiffGenerator {
 
     fun getDiff(first: HashObject, second: HashNode): Map<String, Any> {
-        when (second) {
+        return when (second) {
             is HashObject -> {
                 val unChanged = first.hObject.toList().filter { (keyA, nodeA) ->
                     second.hObject.toList()
@@ -14,12 +12,8 @@ object DiffGenerator {
                         ?: false
                 }
 
-                println(unChanged)
-
                 val changed = (first.hObject.toList() + second.hObject.toList())
                     .filter { !unChanged.contains(it) }
-
-                println(changed)
 
                 val keyChanged = changed.filter {
                     val firstContainsValue = first.hObject.containsValue(it.second)
@@ -34,14 +28,10 @@ object DiffGenerator {
                 }
 
                 val added = second.hObject.toList().filter {
-                    // TODO: do i need `!unChanged.contains(it)` after I bake type into hash?
                     !keyChanged.contains(it) && !valueChanged.contains(it) && !unChanged.contains(it)
                 }
 
-                val removed = (changed.subtract(keyChanged + valueChanged)) - added
-
-                println("added: $added")
-                println("removed: $removed")
+                val removed = changed.subtract(keyChanged + valueChanged + added)
 
                 val addedDiff = added.map { (addedKey, addedNode) ->
                     val keyMap = mapOf("key" to hashChanged(from = nullValue, to = addedKey))
@@ -91,8 +81,6 @@ object DiffGenerator {
                         }
 
                         mapOf("key" to hashChanged(from, to))
-                    }.also {
-                        println("keyChangedDiff: $it")
                     }
 
                 val valueChangedDiff = valueChanged
@@ -125,17 +113,12 @@ object DiffGenerator {
                         )
 
                         keyMap + valueDiff
-                    }.also {
-                        println("valueChangedProgress: $it")
                     }
 
-                val actualDiff = hashChanged(
+                hashChanged(
                     from = first.hash,
                     to = second.hash
                 ) + mapOf("children" to (addedDiff + removedDiff + keyChangedDiff + valueChangedDiff)) + objectType()
-
-                println(ObjectMapper().writeValueAsString(actualDiff))
-                return actualDiff
             }
             is HashArray -> {
                 val removedObjectDiff = first.hObject.map { (removedKey, removedNode) ->
@@ -163,7 +146,7 @@ object DiffGenerator {
                     }
                 }
 
-                return hashChanged(
+                hashChanged(
                     from = first.hash,
                     to = second.hash
                 ) + mapOf("children" to removedObjectDiff + addedArrayDiff) + objectToArrayType()
@@ -172,7 +155,7 @@ object DiffGenerator {
                 val removedChildren =
                     getDiff(first, HashObject(nullValue, mapOf()))["children"] as List<Map<String, Any>>
 
-                return hashChanged(
+                hashChanged(
                     from = first.hash,
                     to = second.hash
                 ) + mapOf("children" to removedChildren) + objectToValueType()

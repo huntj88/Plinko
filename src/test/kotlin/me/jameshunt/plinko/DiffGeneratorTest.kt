@@ -282,8 +282,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "55b879d5995f451e280b84f1a81f731a",
-                "to": "fc824db5d986fa9dbb2a1860d89a84c4"
+                "from": "2d3ced6443d9a19d2b87bb06656283f6",
+                "to": "4ec31704a3ec981be364071f6b6c9adc"
               },
               "children": [
                 {
@@ -292,8 +292,12 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "873e8c183f74eed98d08f5ec2c2832e9",
+                      "from": "61c6593e5704bf45570b6fe88c27f423",
                       "to": "4101bef8794fed986e95dfb54850c68b"
+                    },
+                    "type": {
+                      "from": "object",
+                      "to": "value"
                     },
                     "children": [
                       {
@@ -311,11 +315,7 @@ class DiffGeneratorTest {
                           "type": "value"
                         }
                       }
-                    ],
-                    "type": {
-                      "from": "object",
-                      "to": "value"
-                    }
+                    ]
                   }
                 }
               ],
@@ -877,8 +877,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "04922aa55d3278b0dcbb7aafcfab1f09",
-                "to": "d41d8cd98f00b204e9800998ecf8427e"
+                "from": "b3cda3d23485d5959a15561a7aa4b0f3",
+                "to": "a8cfde6331bd59eb2ac96f8911c4b666"
               },
               "children": [
                 {
@@ -890,9 +890,10 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "79c30748b84bd4f0fe1ddbc3dcd72969",
+                      "from": "9b0ecb4117ce32422ff0366734ad16b2",
                       "to": "d41d8cd98f00b204e9800998ecf8427e"
                     },
+                    "type": "array",
                     "children": [
                       {
                         "hash": {
@@ -901,8 +902,7 @@ class DiffGeneratorTest {
                         },
                         "type": "value"
                       }
-                    ],
-                    "type": "array"
+                    ]
                   }
                 }
               ],
@@ -988,8 +988,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "4258bd7cd50f560ae980ee3bcb54a394",
-                "to": "3f7c9f23d16d571114ff34ab2adff983"
+                "from": "ffa96327843d20417a8ea93f72cf002a",
+                "to": "e3c38f42d8eca719ae2b293a518a2ba9"
               },
               "children": [
                 {
@@ -998,9 +998,10 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "69a329523ce1ec88bf63061863d9cb14",
-                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                      "from": "183c6f6bc203c6097b5d565bf43efcb9",
+                      "to": "f1f713c9e000f5d3f280adbd124df4f5"
                     },
+                    "type": "array",
                     "children": [
                       {
                         "hash": {
@@ -1009,8 +1010,7 @@ class DiffGeneratorTest {
                         },
                         "type": "value"
                       }
-                    ],
-                    "type": "array"
+                    ]
                   }
                 }
               ],
@@ -1039,8 +1039,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "3f7c9f23d16d571114ff34ab2adff983",
-                "to": "bd35717065820c2a8cf26f303f888e61"
+                "from": "e3c38f42d8eca719ae2b293a518a2ba9",
+                "to": "9fac993e0abffefb07b5975571becbf0"
               },
               "children": [
                 {
@@ -1049,25 +1049,25 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "d41d8cd98f00b204e9800998ecf8427e",
-                      "to": "74be16979710d4c4e7c6647856088456"
+                      "from": "f1f713c9e000f5d3f280adbd124df4f5",
+                      "to": "23fd6bf3a9d8a6e2ea7b78cc7844f859"
                     },
+                    "type": "array",
                     "children": [
                       {
                         "hash": {
                           "from": "d41d8cd98f00b204e9800998ecf8427e",
-                          "to": "d41d8cd98f00b204e9800998ecf8427e"
+                          "to": "f1f713c9e000f5d3f280adbd124df4f5"
                         },
                         "type": "array",
                         "children": []
                       }
-                    ],
-                    "type": "array"
+                    ]
                   }
                 }
               ],
               "type": "object"
-            }            
+            }
         """.trimIndent().toDiffJson()
         Assert.assertEquals(expectedDiff, actual)
     }
@@ -1091,8 +1091,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "03f277fbc07274a23528733812e6f23d",
-                "to": "3f7c9f23d16d571114ff34ab2adff983"
+                "from": "1da17f77bd78eb2de76c3f21166851ec",
+                "to": "e3c38f42d8eca719ae2b293a518a2ba9"
               },
               "children": [
                 {
@@ -1101,15 +1101,17 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "920d7d658c6acc9d7c8251ab50405db1",
-                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                      "from": "d01c493627660b2e3b79cea269160b6c",
+                      "to": "f1f713c9e000f5d3f280adbd124df4f5"
                     },
+                    "type": "array",
                     "children": [
                       {
                         "hash": {
-                          "from": "96cabca7a92e0ebe17f802ad6e592cb2",
+                          "from": "59dda4f77217ec8b40445ef72194fd3b",
                           "to": "d41d8cd98f00b204e9800998ecf8427e"
                         },
+                        "type": "array",
                         "children": [
                           {
                             "hash": {
@@ -1118,11 +1120,9 @@ class DiffGeneratorTest {
                             },
                             "type": "value"
                           }
-                        ],
-                        "type": "array"
+                        ]
                       }
-                    ],
-                    "type": "array"
+                    ]
                   }
                 }
               ],
@@ -1147,8 +1147,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "d41d8cd98f00b204e9800998ecf8427e",
-                "to": "3f7c9f23d16d571114ff34ab2adff983"
+                "from": "a8cfde6331bd59eb2ac96f8911c4b666",
+                "to": "e6cf1d2f3db117c3813f0cc8ff3dc2e0"
               },
               "children": [
                 {
@@ -1161,10 +1161,10 @@ class DiffGeneratorTest {
                   "value": {
                     "hash": {
                       "from": "d41d8cd98f00b204e9800998ecf8427e",
-                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                      "to": "a8cfde6331bd59eb2ac96f8911c4b666"
                     },
-                    "children": [],
-                    "type": "object"
+                    "type": "object",
+                    "children": []
                   }
                 }
               ],
@@ -1189,8 +1189,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "3f7c9f23d16d571114ff34ab2adff983",
-                "to": "d41d8cd98f00b204e9800998ecf8427e"
+                "from": "e6cf1d2f3db117c3813f0cc8ff3dc2e0",
+                "to": "a8cfde6331bd59eb2ac96f8911c4b666"
               },
               "children": [
                 {
@@ -1202,11 +1202,11 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "d41d8cd98f00b204e9800998ecf8427e",
+                      "from": "a8cfde6331bd59eb2ac96f8911c4b666",
                       "to": "d41d8cd98f00b204e9800998ecf8427e"
                     },
-                    "children": [],
-                    "type": "object"
+                    "type": "object",
+                    "children": []
                   }
                 }
               ],

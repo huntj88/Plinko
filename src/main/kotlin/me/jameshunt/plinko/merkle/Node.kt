@@ -2,7 +2,9 @@ package me.jameshunt.plinko.merkle
 
 import org.apache.commons.codec.digest.DigestUtils
 
-val emptyOrNull: String = DigestUtils.md5Hex(byteArrayOf())
+val nullValue: String = DigestUtils.md5Hex(byteArrayOf())
+val emptyObject: String = JObject(mapOf()).hash
+val emptyArray: String = JArray(listOf()).hash
 
 interface Node {
     val hash: String
@@ -12,12 +14,14 @@ data class JObject(val keyValues: Map<JValue, Node>) : Node {
     override val hash: String = keyValues
         .map { (key, node) -> key.hash + node.hash }
         .joinToString()
+        .let { "${it}object" }
         .let(DigestUtils::md5Hex)
 }
 
 data class JArray(val array: List<Node>) : Node {
     override val hash: String = array
         .joinToString { it.hash }
+        .let { "${it}array" }
         .let(DigestUtils::md5Hex)
 }
 

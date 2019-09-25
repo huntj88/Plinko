@@ -18,6 +18,22 @@ fun String.toJsonHashObject(): HashObject = ObjectMapper()
 class DiffGeneratorTest {
 
     @Test
+    fun `no diff`() {
+        val json = """
+            {
+              "bob": []
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(json, json).let { DiffParser.parseDiff(it) }
+
+        val expectedDiff = """
+            
+        """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
+    }
+
+    @Test
     fun `add key-simpleValue to object`() {
         val before = "{}".toJsonHashObject()
 
@@ -511,8 +527,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "3f7c9f23d16d571114ff34ab2adff983",
-                "to": "3f7c9f23d16d571114ff34ab2adff983"
+                "from": "e3c38f42d8eca719ae2b293a518a2ba9",
+                "to": "e6cf1d2f3db117c3813f0cc8ff3dc2e0"
               },
               "children": [
                 {
@@ -521,8 +537,8 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "d41d8cd98f00b204e9800998ecf8427e",
-                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                      "from": "f1f713c9e000f5d3f280adbd124df4f5",
+                      "to": "a8cfde6331bd59eb2ac96f8911c4b666"
                     },
                     "children": [],
                     "type": {
@@ -557,8 +573,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "04922aa55d3278b0dcbb7aafcfab1f09",
-                "to": "55f77324fe13e610f2f826e4224a765c"
+                "from": "b3cda3d23485d5959a15561a7aa4b0f3",
+                "to": "05c9a23b2fa5f8ccda9c2ce3f072082f"
               },
               "children": [
                 {
@@ -567,8 +583,8 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "79c30748b84bd4f0fe1ddbc3dcd72969",
-                      "to": "fd669bc88dc8150fe352cecacfd615ba"
+                      "from": "9b0ecb4117ce32422ff0366734ad16b2",
+                      "to": "2188064150411fa5da0a0f5c166d7917"
                     },
                     "children": [
                       {

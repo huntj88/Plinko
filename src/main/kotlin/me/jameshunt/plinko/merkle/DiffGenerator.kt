@@ -44,32 +44,32 @@ object DiffGenerator {
                 println("removed: $removed")
 
                 val addedDiff = added.map { (addedKey, addedNode) ->
-                    val keyMap = mapOf("key" to hashChanged(from = emptyOrNull, to = addedKey))
+                    val keyMap = mapOf("key" to hashChanged(from = nullValue, to = addedKey))
                     val valueChildren = when (addedNode) {
-                        is HashObject -> getDiff(HashObject(emptyOrNull, mapOf()), addedNode) + objectType()
-                        is HashArray -> getDiff(HashArray(emptyOrNull, listOf()), addedNode) + arrayType()
-                        is HashValue -> hashChanged(from = emptyOrNull, to = addedNode.hash) + valueType()
+                        is HashObject -> getDiff(HashObject(nullValue, mapOf()), addedNode) + objectType()
+                        is HashArray -> getDiff(HashArray(nullValue, listOf()), addedNode) + arrayType()
+                        is HashValue -> hashChanged(from = nullValue, to = addedNode.hash) + valueType()
                         else -> throw IllegalStateException(addedNode.toString())
                     }
 
                     val valueMap =
-                        mapOf("value" to hashChanged(from = emptyOrNull, to = addedNode.hash) + valueChildren)
+                        mapOf("value" to hashChanged(from = nullValue, to = addedNode.hash) + valueChildren)
 
                     keyMap + valueMap
                 }
 
                 val removedDiff = removed.map { (removedKey, removedNode) ->
-                    val keyMap = mapOf("key" to hashChanged(from = removedKey, to = emptyOrNull))
+                    val keyMap = mapOf("key" to hashChanged(from = removedKey, to = nullValue))
 
                     val valueChildren = when (removedNode) {
-                        is HashObject -> getDiff(removedNode, HashObject(emptyOrNull, mapOf())) + objectType()
-                        is HashArray -> getDiff(removedNode, HashArray(emptyOrNull, listOf())) + arrayType()
-                        is HashValue -> hashChanged(from = removedNode.hash, to = emptyOrNull) + valueType()
+                        is HashObject -> getDiff(removedNode, HashObject(nullValue, mapOf())) + objectType()
+                        is HashArray -> getDiff(removedNode, HashArray(nullValue, listOf())) + arrayType()
+                        is HashValue -> hashChanged(from = removedNode.hash, to = nullValue) + valueType()
                         else -> throw IllegalStateException(removedNode.toString())
                     }
 
                     val valueMap =
-                        mapOf("value" to hashChanged(from = removedNode.hash, to = emptyOrNull) + valueChildren)
+                        mapOf("value" to hashChanged(from = removedNode.hash, to = nullValue) + valueChildren)
 
                     keyMap + valueMap
                 }
@@ -139,26 +139,26 @@ object DiffGenerator {
             }
             is HashArray -> {
                 val removedObjectDiff = first.hObject.map { (removedKey, removedNode) ->
-                    val keyMap = mapOf("key" to hashChanged(from = removedKey, to = emptyOrNull))
+                    val keyMap = mapOf("key" to hashChanged(from = removedKey, to = nullValue))
 
                     val valueChildren = when (removedNode) {
-                        is HashObject -> getDiff(removedNode, HashObject(emptyOrNull, mapOf())) + objectType()
-                        is HashArray -> getDiff(removedNode, HashArray(emptyOrNull, listOf())) + arrayType()
-                        is HashValue -> hashChanged(from = removedNode.hash, to = emptyOrNull) + valueType()
+                        is HashObject -> getDiff(removedNode, HashObject(nullValue, mapOf())) + objectType()
+                        is HashArray -> getDiff(removedNode, HashArray(nullValue, listOf())) + arrayType()
+                        is HashValue -> hashChanged(from = removedNode.hash, to = nullValue) + valueType()
                         else -> throw IllegalStateException(removedNode.toString())
                     }
 
                     val valueMap =
-                        mapOf("value" to hashChanged(from = removedNode.hash, to = emptyOrNull) + valueChildren)
+                        mapOf("value" to hashChanged(from = removedNode.hash, to = nullValue) + valueChildren)
 
                     keyMap + valueMap
                 }
 
                 val addedArrayDiff = second.hArray.map { addedChild ->
                     when (addedChild) {
-                        is HashObject -> getDiff(HashObject(emptyOrNull, mapOf()), addedChild)
-                        is HashArray -> getDiff(HashArray(emptyOrNull, listOf()), addedChild)
-                        is HashValue -> hashChanged(from = emptyOrNull, to = addedChild.hash) + valueType()
+                        is HashObject -> getDiff(HashObject(nullValue, mapOf()), addedChild)
+                        is HashArray -> getDiff(HashArray(nullValue, listOf()), addedChild)
+                        is HashValue -> hashChanged(from = nullValue, to = addedChild.hash) + valueType()
                         else -> throw IllegalStateException()
                     }
                 }
@@ -170,7 +170,7 @@ object DiffGenerator {
             }
             is HashValue -> {
                 val removedChildren =
-                    getDiff(first, HashObject(emptyOrNull, mapOf()))["children"] as List<Map<String, Any>>
+                    getDiff(first, HashObject(nullValue, mapOf()))["children"] as List<Map<String, Any>>
 
                 return hashChanged(
                     from = first.hash,
@@ -187,24 +187,24 @@ object DiffGenerator {
 
                 val removedArrayDiff = first.hArray.map { removedChild ->
                     when (removedChild) {
-                        is HashObject -> getDiff(removedChild, HashObject(emptyOrNull, mapOf()))
-                        is HashArray -> getDiff(removedChild, HashArray(emptyOrNull, listOf()))
-                        is HashValue -> hashChanged(from = removedChild.hash, to = emptyOrNull) + valueType()
+                        is HashObject -> getDiff(removedChild, HashObject(nullValue, mapOf()))
+                        is HashArray -> getDiff(removedChild, HashArray(nullValue, listOf()))
+                        is HashValue -> hashChanged(from = removedChild.hash, to = nullValue) + valueType()
                         else -> throw IllegalStateException()
                     }
                 }
 
                 val addedObjectDiff = second.hObject.map { (addedKey, addedNode) ->
-                    val keyMap = mapOf("key" to hashChanged(from = emptyOrNull, to = addedKey))
+                    val keyMap = mapOf("key" to hashChanged(from = nullValue, to = addedKey))
                     val valueChildren = when (addedNode) {
-                        is HashObject -> getDiff(HashObject(emptyOrNull, mapOf()), addedNode) + objectType()
-                        is HashArray -> getDiff(HashArray(emptyOrNull, listOf()), addedNode) + arrayType()
-                        is HashValue -> hashChanged(from = emptyOrNull, to = addedNode.hash) + valueType()
+                        is HashObject -> getDiff(HashObject(nullValue, mapOf()), addedNode) + objectType()
+                        is HashArray -> getDiff(HashArray(nullValue, listOf()), addedNode) + arrayType()
+                        is HashValue -> hashChanged(from = nullValue, to = addedNode.hash) + valueType()
                         else -> throw IllegalStateException(addedNode.toString())
                     }
 
                     val valueMap =
-                        mapOf("value" to hashChanged(from = emptyOrNull, to = addedNode.hash) + valueChildren)
+                        mapOf("value" to hashChanged(from = nullValue, to = addedNode.hash) + valueChildren)
 
                     keyMap + valueMap
                 }
@@ -221,18 +221,18 @@ object DiffGenerator {
 
                 val addedDiff = added.map { addedChild ->
                     when (addedChild) {
-                        is HashObject -> getDiff(HashObject(emptyOrNull, mapOf()), addedChild)
-                        is HashArray -> getDiff(HashArray(emptyOrNull, listOf()), addedChild)
-                        is HashValue -> hashChanged(from = emptyOrNull, to = addedChild.hash) + valueType()
+                        is HashObject -> getDiff(HashObject(nullValue, mapOf()), addedChild)
+                        is HashArray -> getDiff(HashArray(nullValue, listOf()), addedChild)
+                        is HashValue -> hashChanged(from = nullValue, to = addedChild.hash) + valueType()
                         else -> throw IllegalStateException()
                     }
                 }
 
                 val removedDiff = removed.map { removedChild ->
                     when (removedChild) {
-                        is HashObject -> getDiff(removedChild, HashObject(emptyOrNull, mapOf()))
-                        is HashArray -> getDiff(removedChild, HashArray(emptyOrNull, listOf()))
-                        is HashValue -> hashChanged(from = removedChild.hash, to = emptyOrNull) + valueType()
+                        is HashObject -> getDiff(removedChild, HashObject(nullValue, mapOf()))
+                        is HashArray -> getDiff(removedChild, HashArray(nullValue, listOf()))
+                        is HashValue -> hashChanged(from = removedChild.hash, to = nullValue) + valueType()
                         else -> throw IllegalStateException()
                     }
                 }
@@ -244,7 +244,7 @@ object DiffGenerator {
             }
             is HashValue -> {
                 val removedChildren =
-                    getDiff(first, HashArray(emptyOrNull, listOf()))["children"] as List<Map<String, Any>>
+                    getDiff(first, HashArray(nullValue, listOf()))["children"] as List<Map<String, Any>>
 
                 hashChanged(
                     from = first.hash,

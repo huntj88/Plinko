@@ -34,7 +34,8 @@ object DiffGenerator {
                 }
 
                 val added = second.hObject.toList().filter {
-                    !keyChanged.contains(it) && !valueChanged.contains(it)
+                    // TODO: do i need `!unChanged.contains(it)` after I bake type into hash?
+                    !keyChanged.contains(it) && !valueChanged.contains(it) && !unChanged.contains(it)
                 }
 
                 val removed = (changed.subtract(keyChanged + valueChanged)) - added
@@ -166,8 +167,6 @@ object DiffGenerator {
                     from = first.hash,
                     to = second.hash
                 ) + mapOf("children" to removedObjectDiff + addedArrayDiff) + objectToArrayType()
-
-//                TODO()
             }
             is HashValue -> {
                 val removedChildren =

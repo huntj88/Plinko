@@ -335,9 +335,7 @@ class DiffGeneratorTest {
 
         val after = """
             {
-              "bob": [
-                "wow"
-              ]
+              "bob": []
             }
         """.toJsonHashObject()
 
@@ -347,8 +345,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "fc824db5d986fa9dbb2a1860d89a84c4",
-                "to": "776f5e468405ba973c11b750dc2d85b9"
+                "from": "4ec31704a3ec981be364071f6b6c9adc",
+                "to": "e3c38f42d8eca719ae2b293a518a2ba9"
               },
               "children": [
                 {
@@ -358,21 +356,68 @@ class DiffGeneratorTest {
                   "value": {
                     "hash": {
                       "from": "4101bef8794fed986e95dfb54850c68b",
-                      "to": "96cabca7a92e0ebe17f802ad6e592cb2"
+                      "to": "f1f713c9e000f5d3f280adbd124df4f5"
+                    },
+                    "type": {
+                      "from": "value",
+                      "to": "array"
+                    },
+                    "children": []
+                  }
+                }
+              ],
+              "type": "object"
+            }
+            """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
+    }
+
+    @Test
+    fun `change simple value to array with values`() {
+        val before = """
+            {
+              "bob": "nope"
+            }
+        """.toJsonHashObject()
+
+        val after = """
+            {
+              "bob": ["nope"]
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+        println(actual)
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "4ec31704a3ec981be364071f6b6c9adc",
+                "to": "b3cda3d23485d5959a15561a7aa4b0f3"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": "9f9d51bc70ef21ca5c14f307980a29d8"
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "4101bef8794fed986e95dfb54850c68b",
+                      "to": "9b0ecb4117ce32422ff0366734ad16b2"
+                    },
+                    "type": {
+                      "from": "value",
+                      "to": "array"
                     },
                     "children": [
                       {
                         "hash": {
                           "from": "d41d8cd98f00b204e9800998ecf8427e",
-                          "to": "bcedc450f8481e89b1445069acdc3dd9"
+                          "to": "4101bef8794fed986e95dfb54850c68b"
                         },
                         "type": "value"
                       }
-                    ],
-                    "type": {
-                      "from": "value",
-                      "to": "array"
-                    }
+                    ]
                   }
                 }
               ],
@@ -384,6 +429,53 @@ class DiffGeneratorTest {
 
     @Test
     fun `change array to simple value`() {
+        val before = """
+            {
+              "bob": []
+            }
+        """.toJsonHashObject()
+
+        val after = """
+            {
+              "bob": "nope"
+            }
+        """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+        println(actual)
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "e3c38f42d8eca719ae2b293a518a2ba9",
+                "to": "4ec31704a3ec981be364071f6b6c9adc"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": "9f9d51bc70ef21ca5c14f307980a29d8"
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "f1f713c9e000f5d3f280adbd124df4f5",
+                      "to": "4101bef8794fed986e95dfb54850c68b"
+                    },
+                    "type": {
+                      "from": "array",
+                      "to": "value"
+                    },
+                    "children": []
+                  }
+                }
+              ],
+              "type": "object"
+            }
+            """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
+    }
+
+    @Test
+    fun `change array with value to simple value`() {
         val before = """
             {
               "bob": [
@@ -695,8 +787,8 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "bd35717065820c2a8cf26f303f888e61",
-                "to": "3f7c9f23d16d571114ff34ab2adff983"
+                "from": "675152b84d5249a416f3969951e2d121",
+                "to": "e3c38f42d8eca719ae2b293a518a2ba9"
               },
               "children": [
                 {
@@ -705,20 +797,20 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "74be16979710d4c4e7c6647856088456",
-                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                      "from": "64eca22170f35eb251066a19bb7388eb",
+                      "to": "f1f713c9e000f5d3f280adbd124df4f5"
                     },
+                    "type": "array",
                     "children": [
                       {
                         "hash": {
-                          "from": "d41d8cd98f00b204e9800998ecf8427e",
+                          "from": "a8cfde6331bd59eb2ac96f8911c4b666",
                           "to": "d41d8cd98f00b204e9800998ecf8427e"
                         },
-                        "children": [],
-                        "type": "object"
+                        "type": "object",
+                        "children": []
                       }
-                    ],
-                    "type": "array"
+                    ]
                   }
                 }
               ],

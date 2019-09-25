@@ -709,6 +709,55 @@ class DiffGeneratorTest {
     }
 
     @Test
+    fun `remove array from object`() {
+        val before = """
+            {
+              "bob": ["nope"]
+            }
+        """.toJsonHashObject()
+        val after = "{}".toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "04922aa55d3278b0dcbb7aafcfab1f09",
+                "to": "d41d8cd98f00b204e9800998ecf8427e"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": {
+                      "from": "9f9d51bc70ef21ca5c14f307980a29d8",
+                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                    }
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "79c30748b84bd4f0fe1ddbc3dcd72969",
+                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                    },
+                    "children": [
+                      {
+                        "hash": {
+                          "from": "4101bef8794fed986e95dfb54850c68b",
+                          "to": "d41d8cd98f00b204e9800998ecf8427e"
+                        },
+                        "type": "value"
+                      }
+                    ],
+                    "type": "array"
+                  }
+                }
+              ],
+              "type": "object"
+            }
+        """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
+    }
+
+    @Test
     fun `add simple value to array`() {
         val before = """
             {
@@ -874,12 +923,55 @@ class DiffGeneratorTest {
     }
 
     @Test
-    fun `remove array from object`() {
-        val before = """
+    fun `add object to object`() {
+        val before = "{}".toJsonHashObject()
+
+        val after = """
             {
-              "bob": ["nope"]
+              "bob": {}
             }
         """.toJsonHashObject()
+
+        val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+
+        val expectedDiff = """
+            {
+              "hash": {
+                "from": "d41d8cd98f00b204e9800998ecf8427e",
+                "to": "3f7c9f23d16d571114ff34ab2adff983"
+              },
+              "children": [
+                {
+                  "key": {
+                    "hash": {
+                      "from": "d41d8cd98f00b204e9800998ecf8427e",
+                      "to": "9f9d51bc70ef21ca5c14f307980a29d8"
+                    }
+                  },
+                  "value": {
+                    "hash": {
+                      "from": "d41d8cd98f00b204e9800998ecf8427e",
+                      "to": "d41d8cd98f00b204e9800998ecf8427e"
+                    },
+                    "children": [],
+                    "type": "object"
+                  }
+                }
+              ],
+              "type": "object"
+            }
+        """.trimIndent().toDiffJson()
+        Assert.assertEquals(expectedDiff, actual)
+    }
+
+    @Test
+    fun `remove object from object`() {
+        val before = """
+            {
+              "bob": {}
+            }
+        """.toJsonHashObject()
+
         val after = "{}".toJsonHashObject()
 
         val actual = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
@@ -887,7 +979,7 @@ class DiffGeneratorTest {
         val expectedDiff = """
             {
               "hash": {
-                "from": "04922aa55d3278b0dcbb7aafcfab1f09",
+                "from": "3f7c9f23d16d571114ff34ab2adff983",
                 "to": "d41d8cd98f00b204e9800998ecf8427e"
               },
               "children": [
@@ -900,19 +992,11 @@ class DiffGeneratorTest {
                   },
                   "value": {
                     "hash": {
-                      "from": "79c30748b84bd4f0fe1ddbc3dcd72969",
+                      "from": "d41d8cd98f00b204e9800998ecf8427e",
                       "to": "d41d8cd98f00b204e9800998ecf8427e"
                     },
-                    "children": [
-                      {
-                        "hash": {
-                          "from": "4101bef8794fed986e95dfb54850c68b",
-                          "to": "d41d8cd98f00b204e9800998ecf8427e"
-                        },
-                        "type": "value"
-                      }
-                    ],
-                    "type": "array"
+                    "children": [],
+                    "type": "object"
                   }
                 }
               ],

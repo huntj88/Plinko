@@ -24,15 +24,15 @@ object DiffParser {
                 children = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
             )
             this["type"] == "value" -> return ValueInfo.Value(from = from, to = to)
-            this["type"].getToType() == "object" -> {
-                when (this["type"].getFromType()) {
-                    "array" -> DiffParser.ValueInfo.ArrayToObject(
+            this["type"].getFromType() == "object" -> {
+                when (this["type"].getToType()) {
+                    "array" -> DiffParser.ValueInfo.ObjectToArray( // todo
                         from = from,
                         to = to,
                         objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren(),
                         arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
                     )
-                    "value" -> ValueInfo.ValueToObject(
+                    "value" -> ValueInfo.ObjectToValue( // todo
                         from = from,
                         to = to,
                         objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren()
@@ -40,15 +40,15 @@ object DiffParser {
                     else -> throw IllegalStateException()
                 }
             }
-            this["type"].getToType() == "array" -> {
-                when (this["type"].getFromType()) {
-                    "object" -> ValueInfo.ObjectToArray(
+            this["type"].getFromType() == "array" -> {
+                when (this["type"].getToType()) {
+                    "object" -> ValueInfo.ArrayToObject( // todo
                         from = from,
                         to = to,
                         objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren(),
                         arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
                     )
-                    "value" -> ValueInfo.ValueToArray(
+                    "value" -> ValueInfo.ArrayToValue( // todo
                         from = from,
                         to = to,
                         arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
@@ -56,14 +56,14 @@ object DiffParser {
                     else -> throw IllegalStateException()
                 }
             }
-            this["type"].getToType() == "value" -> {
-                when (this["type"].getFromType()) {
-                    "object" -> ValueInfo.ObjectToValue(
+            this["type"].getFromType() == "value" -> {
+                when (this["type"].getToType()) {
+                    "object" -> ValueInfo.ValueToObject( // todo
                         from = from,
                         to = to,
                         objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren()
                     )
-                    "array" -> ValueInfo.ArrayToValue(
+                    "array" -> ValueInfo.ValueToArray( // todo
                         from = from,
                         to = to,
                         arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()

@@ -23,12 +23,60 @@ object DiffParser {
                 to = to,
                 children = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
             )
-            else -> return ValueInfo.Value(from = from, to = to)
+            this["type"] == "value" -> return ValueInfo.Value(from = from, to = to)
+            (this["type"] as Map<String, String>)["to"] == "object" -> {
+                when((this["type"] as Map<String, String>)["from"]!!) {
+                    "array" -> DiffParser.ValueInfo.ArrayToObject(
+                        from = from,
+                        to = to,
+                        objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren(),
+                        arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
+                    )
+                    "value" -> ValueInfo.ValueToObject(
+                        from = from,
+                        to = to,
+                        objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren()
+                    )
+                    else -> throw IllegalStateException()
+                }
+            }
+            (this["type"] as Map<String, String>)["to"] == "array" -> {
+                when((this["type"] as Map<String, String>)["from"]!!) {
+                    "object" -> ValueInfo.ObjectToArray(
+                        from = from,
+                        to = to,
+                        objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren(),
+                        arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
+                    )
+                    "value" -> ValueInfo.ValueToArray(
+                        from = from,
+                        to = to,
+                        arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
+                    )
+                    else -> throw IllegalStateException()
+                }
+            }
+            (this["type"] as Map<String, String>)["to"] == "value" -> {
+                when((this["type"] as Map<String, String>)["from"]!!) {
+                    "object" -> ValueInfo.ObjectToValue(
+                        from = from,
+                        to = to,
+                        objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren()
+                    )
+                    "array" -> ValueInfo.ArrayToValue(
+                        from = from,
+                        to = to,
+                        arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
+                    )
+                    else -> throw IllegalStateException()
+                }
+            }
+            else -> throw IllegalStateException()
         }
     }
 
     private fun List<Map<String, Any>>.parseObjectChildren(): Map<KeyInfo, ValueInfo?> {
-        return this.map { child ->
+        return this.filter { it.containsKey("key") }.map { child ->
             val childKey = when (val hash = (child["key"] as? Map<String, Any>)?.get("hash")) {
                 is String -> KeyInfo.KeySame(hash)
                 is Map<*, *> -> {
@@ -47,7 +95,7 @@ object DiffParser {
     }
 
     private fun List<Map<String, Any>>.parseArrayChildren(): List<ValueInfo> {
-        return this.map { child -> child.parseObject() }
+        return this.filter { !it.containsKey("key") }.map { child -> child.parseObject() }
     }
 
     sealed class KeyInfo {
@@ -56,9 +104,47 @@ object DiffParser {
     }
 
     sealed class ValueInfo {
-        data class Value(val from: String, val to: String) : ValueInfo()
         data class Object(val from: String, val to: String, val children: Map<KeyInfo, ValueInfo?>) : ValueInfo()
         data class Array(val from: String, val to: String, val children: List<ValueInfo>) : ValueInfo()
+        data class Value(val from: String, val to: String) : ValueInfo()
+
+        data class ObjectToArray(
+            val from: String,
+            val to: String,
+            val objectChildren: Map<KeyInfo, ValueInfo?>,
+            val arrayChildren: List<ValueInfo>
+        ): ValueInfo()
+
+        data class ObjectToValue(
+            val from: String,
+            val to: String,
+            val objectChildren: Map<KeyInfo, ValueInfo?>
+        ): ValueInfo()
+
+        data class ArrayToObject(
+            val from: String,
+            val to: String,
+            val arrayChildren: List<ValueInfo>,
+            val objectChildren: Map<KeyInfo, ValueInfo?>
+        ): ValueInfo()
+
+        data class ArrayToValue(
+            val from: String,
+            val to: String,
+            val arrayChildren: List<ValueInfo>
+        ): ValueInfo()
+
+        data class ValueToObject(
+            val from: String,
+            val to: String,
+            val objectChildren: Map<KeyInfo, ValueInfo?>
+        ): ValueInfo()
+
+        data class ValueToArray(
+            val from: String,
+            val to: String,
+            val arrayChildren: List<ValueInfo>
+        ): ValueInfo()
     }
 
 }

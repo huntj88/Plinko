@@ -2,15 +2,15 @@ package me.jameshunt.plinko.merkle
 
 object DiffParser {
 
-    fun parseDiff(diff: Map<String, Any>): ValueInfo {
-        return diff.parseObject()
-    }
+    fun parseDiff(diff: Map<String, Any>): ValueInfo = diff.parseObject()
 
     private fun Map<String, Any>.parseObject(): ValueInfo {
-
         val hash = this["hash"] as Map<String, String>
         val from = hash["from"] as String
         val to = hash["to"] as String
+
+        fun Any?.getToType(): String = (this as Map<String, String>)["to"]!!
+        fun Any?.getFromType(): String = (this as Map<String, String>)["from"]!!
 
         return when {
             this["type"] == "object" -> ValueInfo.Object(
@@ -24,8 +24,8 @@ object DiffParser {
                 children = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
             )
             this["type"] == "value" -> return ValueInfo.Value(from = from, to = to)
-            (this["type"] as Map<String, String>)["to"] == "object" -> {
-                when((this["type"] as Map<String, String>)["from"]!!) {
+            this["type"].getToType() == "object" -> {
+                when (this["type"].getFromType()) {
                     "array" -> DiffParser.ValueInfo.ArrayToObject(
                         from = from,
                         to = to,
@@ -40,8 +40,8 @@ object DiffParser {
                     else -> throw IllegalStateException()
                 }
             }
-            (this["type"] as Map<String, String>)["to"] == "array" -> {
-                when((this["type"] as Map<String, String>)["from"]!!) {
+            this["type"].getToType() == "array" -> {
+                when (this["type"].getFromType()) {
                     "object" -> ValueInfo.ObjectToArray(
                         from = from,
                         to = to,
@@ -56,8 +56,8 @@ object DiffParser {
                     else -> throw IllegalStateException()
                 }
             }
-            (this["type"] as Map<String, String>)["to"] == "value" -> {
-                when((this["type"] as Map<String, String>)["from"]!!) {
+            this["type"].getToType() == "value" -> {
+                when (this["type"].getFromType()) {
                     "object" -> ValueInfo.ObjectToValue(
                         from = from,
                         to = to,
@@ -76,26 +76,31 @@ object DiffParser {
     }
 
     private fun List<Map<String, Any>>.parseObjectChildren(): Map<KeyInfo, ValueInfo?> {
-        return this.filter { it.containsKey("key") }.map { child ->
-            val childKey = when (val hash = (child["key"] as? Map<String, Any>)?.get("hash")) {
-                is String -> KeyInfo.KeySame(hash)
-                is Map<*, *> -> {
-                    hash as Map<String, String>
-                    KeyInfo.KeyChanged(
-                        from = hash["from"] as String,
-                        to = hash["to"] as String
-                    )
+        return this
+            .filter { it.containsKey("key") }
+            .map { child ->
+                val childKey = when (val hash = (child["key"] as? Map<String, Any>)?.get("hash")) {
+                    is String -> KeyInfo.KeySame(hash)
+                    is Map<*, *> -> {
+                        hash as Map<String, String>
+                        KeyInfo.KeyChanged(
+                            from = hash["from"] as String,
+                            to = hash["to"] as String
+                        )
+                    }
+                    else -> throw IllegalStateException()
                 }
-                else -> throw IllegalStateException()
-            }
 
-            val childValue = (child["value"] as? Map<String, Any>)?.parseObject()
-            childKey to childValue
-        }.toMap()
+                val childValue = (child["value"] as? Map<String, Any>)?.parseObject()
+                childKey to childValue
+            }
+            .toMap()
     }
 
     private fun List<Map<String, Any>>.parseArrayChildren(): List<ValueInfo> {
-        return this.filter { !it.containsKey("key") }.map { child -> child.parseObject() }
+        return this
+            .filter { !it.containsKey("key") }
+            .map { child -> child.parseObject() }
     }
 
     sealed class KeyInfo {
@@ -113,38 +118,38 @@ object DiffParser {
             val to: String,
             val objectChildren: Map<KeyInfo, ValueInfo?>,
             val arrayChildren: List<ValueInfo>
-        ): ValueInfo()
+        ) : ValueInfo()
 
         data class ObjectToValue(
             val from: String,
             val to: String,
             val objectChildren: Map<KeyInfo, ValueInfo?>
-        ): ValueInfo()
+        ) : ValueInfo()
 
         data class ArrayToObject(
             val from: String,
             val to: String,
             val arrayChildren: List<ValueInfo>,
             val objectChildren: Map<KeyInfo, ValueInfo?>
-        ): ValueInfo()
+        ) : ValueInfo()
 
         data class ArrayToValue(
             val from: String,
             val to: String,
             val arrayChildren: List<ValueInfo>
-        ): ValueInfo()
+        ) : ValueInfo()
 
         data class ValueToObject(
             val from: String,
             val to: String,
             val objectChildren: Map<KeyInfo, ValueInfo?>
-        ): ValueInfo()
+        ) : ValueInfo()
 
         data class ValueToArray(
             val from: String,
             val to: String,
             val arrayChildren: List<ValueInfo>
-        ): ValueInfo()
+        ) : ValueInfo()
     }
 
 }

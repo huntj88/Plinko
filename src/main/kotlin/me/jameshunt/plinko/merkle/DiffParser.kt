@@ -26,13 +26,13 @@ object DiffParser {
             this["type"] == "value" -> return ValueInfo.Value(from = from, to = to)
             this["type"].getFromType() == "object" -> {
                 when (this["type"].getToType()) {
-                    "array" -> DiffParser.ValueInfo.ObjectToArray( // todo
+                    "array" -> DiffParser.ValueInfo.ObjectToArray(
                         from = from,
                         to = to,
                         objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren(),
                         arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
                     )
-                    "value" -> ValueInfo.ObjectToValue( // todo
+                    "value" -> ValueInfo.ObjectToValue(
                         from = from,
                         to = to,
                         objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren()
@@ -42,13 +42,13 @@ object DiffParser {
             }
             this["type"].getFromType() == "array" -> {
                 when (this["type"].getToType()) {
-                    "object" -> ValueInfo.ArrayToObject( // todo
+                    "object" -> ValueInfo.ArrayToObject(
                         from = from,
                         to = to,
                         objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren(),
                         arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
                     )
-                    "value" -> ValueInfo.ArrayToValue( // todo
+                    "value" -> ValueInfo.ArrayToValue(
                         from = from,
                         to = to,
                         arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()
@@ -58,12 +58,12 @@ object DiffParser {
             }
             this["type"].getFromType() == "value" -> {
                 when (this["type"].getToType()) {
-                    "object" -> ValueInfo.ValueToObject( // todo
+                    "object" -> ValueInfo.ValueToObject(
                         from = from,
                         to = to,
                         objectChildren = (this["children"] as List<Map<String, Any>>).parseObjectChildren()
                     )
-                    "array" -> ValueInfo.ValueToArray( // todo
+                    "array" -> ValueInfo.ValueToArray(
                         from = from,
                         to = to,
                         arrayChildren = (this["children"] as List<Map<String, Any>>).parseArrayChildren()

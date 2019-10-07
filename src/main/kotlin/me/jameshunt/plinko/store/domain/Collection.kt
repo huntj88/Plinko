@@ -6,6 +6,7 @@ import me.jameshunt.plinko.store.db.CollectionId
 import me.jameshunt.plinko.store.db.DocumentId
 import me.jameshunt.plinko.store.db.MerkleDB
 import org.apache.commons.codec.digest.DigestUtils
+import java.time.OffsetDateTime
 
 typealias CollectionFromDB = me.jameshunt.db.Collection
 
@@ -27,8 +28,11 @@ class Collection(internal val data: CollectionFromDB) {
         // TODO: index existing docs
     }
 
-    fun query(queryBuilder: QueryBuilder.() -> QueryBuilder.QueryPart): List<Document> {
-        return QueryBuilder(data.id)
+    fun query(
+        queryDate: OffsetDateTime = OffsetDateTime.now(),
+        queryBuilder: QueryBuilder.() -> QueryBuilder.QueryPart
+    ): List<Document> {
+        return QueryBuilder(data.id, queryDate)
             .run(queryBuilder)
             .found
             .let { docIds ->
@@ -46,11 +50,11 @@ class Collection(internal val data: CollectionFromDB) {
     }
 }
 
-class QueryBuilder(private val collectionId: CollectionId) {
+class QueryBuilder(private val collectionId: CollectionId, private val queryDate: OffsetDateTime) {
 
     fun whereEqualTo(key: String, value: Any?): QueryPart {
         return MerkleDB.docCollection
-            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key))
+            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), queryDate)
             .filter { it.value_hash == JValue(value).hash }
             .map { it.document_id }
             .let { QueryPart(it.toSet()) }
@@ -60,7 +64,7 @@ class QueryBuilder(private val collectionId: CollectionId) {
         val jQueryValue = JValue(value)
 
         return MerkleDB.docCollection
-            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key))
+            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), queryDate)
             .let { indexes ->
                 val jValues = MerkleDB.values.getJValues(indexes.map { it.value_hash })
                 indexes.map { index -> index to jValues.first { it.hash == index.value_hash } }
@@ -84,7 +88,7 @@ class QueryBuilder(private val collectionId: CollectionId) {
         val jQueryValue = JValue(value)
 
         return MerkleDB.docCollection
-            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key))
+            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), queryDate)
             .let { indexes ->
                 val jValues = MerkleDB.values.getJValues(indexes.map { it.value_hash })
                 indexes.map { index -> index to jValues.first { it.hash == index.value_hash } }

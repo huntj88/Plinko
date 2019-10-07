@@ -19,7 +19,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(json, json).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(json, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(json, diff)
 
         Assert.assertEquals(json, actual)
     }
@@ -35,7 +35,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -50,7 +50,7 @@ class DiffRevertTest {
         val after = "{}".toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -70,7 +70,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
         Assert.assertEquals(before, actual)
     }
 
@@ -89,7 +89,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -111,7 +111,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -133,7 +133,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -153,7 +153,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -173,7 +173,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -193,7 +193,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -215,7 +215,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -234,7 +234,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -253,7 +253,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -272,7 +272,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -291,7 +291,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -311,7 +311,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -327,7 +327,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -342,7 +342,7 @@ class DiffRevertTest {
         val after = "{}".toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -364,7 +364,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -386,7 +386,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -405,7 +405,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -424,7 +424,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -440,7 +440,7 @@ class DiffRevertTest {
         """.toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -456,7 +456,7 @@ class DiffRevertTest {
         val after = "{}".toJsonHashObject()
 
         val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
-        val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
+        val actual = DiffRevert.revert(after, diff)
 
         Assert.assertEquals(before, actual)
     }
@@ -490,5 +490,38 @@ class DiffRevertTest {
         println(ObjectMapper().writeValueAsString(actual))
         Assert.assertEquals(before, actual)
 
+    }
+
+    @Test
+    fun `nested array change`() {
+        val before = """
+            {
+              "hello": "wow",
+              "child": [
+                {
+                  "nope": "yep"
+                }
+              ]
+            }
+            """.trimIndent().toJsonHashObject()
+
+        val after = """
+            {
+              "hello": "wow",
+              "child": [
+                {
+                  "nope": {}
+                }
+              ]
+            }
+        """.trimIndent().toJsonHashObject()
+
+        val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+
+        val actual = DiffRevert.revert(after, diff)
+
+        println(ObjectMapper().writeValueAsString(diff))
+        println(ObjectMapper().writeValueAsString(actual))
+        Assert.assertEquals(before, actual)
     }
 }

@@ -1,0 +1,16 @@
+{
+  "arrayChange": null,
+  "stuff": {
+    "name": "foogliest",
+    "key": "value",
+    "addKeyToObjectTest": true,
+    "adultObject": {
+      "dis": "be cool",
+      "myArray": {
+        "dude": true,
+        "arrayToObject": true
+      }
+    }
+  }
+}
+

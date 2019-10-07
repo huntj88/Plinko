@@ -26,15 +26,50 @@ class DocumentTest {
             .readText()
             .toJson()
 
+        val tree5 = File("src/test/resources/5.json")
+            .readText()
+            .toJson()
+
+        val tree6 = File("src/test/resources/6.json")
+            .readText()
+            .toJson()
+
+        val tree7 = File("src/test/resources/7.json")
+            .readText()
+            .toJson()
+
+        val tree8 = File("src/test/resources/8.json")
+            .readText()
+            .toJson()
+
+        val tree9 = File("src/test/resources/9.json")
+            .readText()
+            .toJson()
+
+        val tree10 = File("src/test/resources/10.json")
+            .readText()
+            .toJson()
+
+        val tree11 = File("src/test/resources/11.json")
+            .readText()
+            .toJson()
+
         Plinko.collection("test").document("doc1").run {
             setData(tree1)
             setData(tree2)
             setData(tree3)
             setData(tree4)
+            setData(tree5)
+            setData(tree6)
+            setData(tree7)
+            setData(tree8)
+            setData(tree9)
+            setData(tree10)
+            setData(tree11)
 
             val data = getData()
             ObjectMapper().writeValueAsString(data).let(::println)
-            Assert.assertEquals(tree4, data)
+            Assert.assertEquals(tree11, data)
         }
     }
 

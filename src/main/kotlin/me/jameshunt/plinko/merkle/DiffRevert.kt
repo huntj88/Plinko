@@ -4,34 +4,108 @@ object DiffRevert {
 
     // same as DiffCommit but with the from/to hashes swapped, and change type methods inversed
 
-    fun revert(hashObject: HashObject, diff: DiffParser.ValueInfo.Object): HashNode {
-        // if no diff then just return the original hashObject
-        if (diff.from == hashObject.hash) return hashObject
+    fun revert(hashObject: HashObject, diff: DiffParser.ValueInfo): HashNode {
+        when (diff) {
+            is DiffParser.ValueInfo.Object -> {
+                //if no diff then just return the original hashObject
+                if (diff.from == hashObject.hash) return hashObject
 
-        val changed = diff.children
-            .map { (keyInfo, valueInfo) ->
-                when (keyInfo) {
-                    is DiffParser.KeyInfo.KeySame -> {
-                        assert(valueInfo != null)
-                        keyInfo.hash to valueInfo!!.toHashVersion()
-                    }
-                    is DiffParser.KeyInfo.KeyChanged -> {
-                        // if value info not null, new key/value pair added
-                        // otherwise, only key changed, and copy value from previous object
-                        when (valueInfo) {
-                            is DiffParser.ValueInfo.Object,
-                            is DiffParser.ValueInfo.Array,
-                            is DiffParser.ValueInfo.Value -> keyInfo.from to valueInfo.toHashVersion()
-                            null -> keyInfo.from to hashObject.hObject[keyInfo.to]!!
-                            else -> throw IllegalStateException()
+                val keysToCheckIfChildChanged = diff.children
+                    .map { it.key }
+                    .map { diffKeyInfo ->
+                        when (diffKeyInfo) {
+                            is DiffParser.KeyInfo.KeySame -> diffKeyInfo.hash
+                            is DiffParser.KeyInfo.KeyChanged -> diffKeyInfo.to
                         }
                     }
-                }
-            }
-            .filter { (key, _) -> key != nullValue }
-            .toMap()
+                val childrenNotChanged = hashObject.hObject.mapNotNull { (childKey, node) ->
+                    val changed = keysToCheckIfChildChanged.contains(childKey)
+                    when {
+                        changed -> null
+                        else -> childKey to node
+                    }
+                }.toMap()
 
-        return HashObject(diff.from, changed).also { println(it) }
+                val changed = diff.children
+                    .map { (keyInfo, valueInfo) ->
+                        when (keyInfo) {
+                            is DiffParser.KeyInfo.KeySame -> {
+                                assert(valueInfo != null)
+                                val childTree = hashObject.hObject[keyInfo.hash]!!
+                                when (childTree) {
+                                    is HashObject -> keyInfo.hash to revert(childTree, valueInfo!!)
+                                    is HashArray -> keyInfo.hash to revert(childTree, valueInfo!!)
+                                    is HashValue -> keyInfo.hash to valueInfo!!.toHashVersion()
+                                    else -> throw IllegalStateException()
+                                }
+                            }
+                            is DiffParser.KeyInfo.KeyChanged -> {
+                                // if value info not null, new key/value pair added
+                                // otherwise, only key changed, and copy value from previous object
+                                when (valueInfo) {
+                                    is DiffParser.ValueInfo.Object,
+                                    is DiffParser.ValueInfo.Array,
+                                    is DiffParser.ValueInfo.Value -> keyInfo.from to valueInfo.toHashVersion()
+                                    null -> keyInfo.from to hashObject.hObject[keyInfo.to]!!
+                                    else -> throw IllegalStateException()
+                                }
+                            }
+                        }
+                    }
+                    .filter { (key, _) -> key != nullValue }
+                    .toMap()
+
+                return HashObject(diff.from, changed + childrenNotChanged).also { println(it) }
+            }
+            // these seem backward, but revert instead of commit, compare to committer
+            is DiffParser.ValueInfo.ArrayToObject,
+            is DiffParser.ValueInfo.ValueToObject -> return diff.toHashVersion()
+
+            is DiffParser.ValueInfo.Array,
+            is DiffParser.ValueInfo.Value,
+            is DiffParser.ValueInfo.ObjectToArray,
+            is DiffParser.ValueInfo.ArrayToValue,
+            is DiffParser.ValueInfo.ObjectToValue,
+            is DiffParser.ValueInfo.ValueToArray -> throw IllegalStateException()
+        }
+    }
+
+    private fun revert(hashArray: HashArray, diff: DiffParser.ValueInfo): HashNode {
+        when (diff) {
+            is DiffParser.ValueInfo.Array -> {
+                val hashesToCheckIfChildChanged = diff.children.map {
+                    when (it) {
+                        is DiffParser.ValueInfo.Value -> it.to
+                        is DiffParser.ValueInfo.Object -> it.to
+                        is DiffParser.ValueInfo.Array -> it.to
+                        else -> throw IllegalStateException()
+                    }
+                }
+                val childrenNotChanged = hashArray.hArray.mapNotNull { node ->
+                    val changed = hashesToCheckIfChildChanged.contains(node.hash)
+                    when {
+                        changed -> null
+                        else -> node
+                    }
+                }
+
+                val childrenChanged = diff.children
+                    .map { valueInfo -> valueInfo.toHashVersion() }
+                    .filter { it.hash != nullValue }
+
+                return HashArray(diff.from, childrenNotChanged + childrenChanged)
+            }
+            // these seem backward, but revert instead of commit, compare to committer
+            is DiffParser.ValueInfo.ObjectToArray,
+            is DiffParser.ValueInfo.ValueToArray -> return diff.toHashVersion()
+
+            is DiffParser.ValueInfo.Object,
+            is DiffParser.ValueInfo.Value,
+            is DiffParser.ValueInfo.ArrayToObject,
+            is DiffParser.ValueInfo.ObjectToValue,
+            is DiffParser.ValueInfo.ValueToObject,
+            is DiffParser.ValueInfo.ArrayToValue -> throw IllegalStateException()
+        }
     }
 
     private fun DiffParser.ValueInfo.toHashVersion(): HashNode {

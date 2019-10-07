@@ -1,5 +1,7 @@
 package me.jameshunt.plinko
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import me.jameshunt.plinko.merkle.DiffCommit
 import me.jameshunt.plinko.merkle.DiffGenerator
 import me.jameshunt.plinko.merkle.DiffParser
 import me.jameshunt.plinko.merkle.DiffRevert
@@ -457,5 +459,36 @@ class DiffRevertTest {
         val actual = DiffRevert.revert(after, diff as DiffParser.ValueInfo.Object)
 
         Assert.assertEquals(before, actual)
+    }
+
+    @Test
+    fun `nested object change`() {
+        val before = """
+            {
+              "hello": "wow",
+              "child": {
+                "nope": "yep"
+              }
+            }
+            """.trimIndent().toJsonHashObject()
+
+        val after = """
+            {
+              "hello": "wow",
+              "child": {
+                "nope": "yep",
+                "wowza": "thing"
+              }
+            }
+        """.trimIndent().toJsonHashObject()
+
+        val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+
+        val actual = DiffRevert.revert(after, diff)
+
+        println(ObjectMapper().writeValueAsString(diff))
+        println(ObjectMapper().writeValueAsString(actual))
+        Assert.assertEquals(before, actual)
+
     }
 }

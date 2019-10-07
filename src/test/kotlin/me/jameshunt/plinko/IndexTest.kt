@@ -34,7 +34,7 @@ class IndexTest {
 
         val keyHash = DigestUtils.md5Hex("index.test1")
 
-        val indexMatches = MerkleDB.docCollection.getDocumentIndex(collection.data.id, keyHash)
+        val indexMatches = MerkleDB.docCollection.getDocumentIndex(collection.data.id, keyHash, OffsetDateTime.now())
 
         indexMatches
             .firstOrNull { it.key_hash == keyHash }
@@ -347,5 +347,32 @@ class IndexTest {
 
         assertFalse(results.map { it.data.id }.contains(document.data.id))
         assertTrue(results.map { it.data.id }.contains(document2.data.id))
+    }
+
+    @Test
+    fun `test queryDate for past indexes`() {
+        val collection = Plinko.collection("queryDatePast")
+        collection.setIndex("blah")
+
+        val testData: Map<String, Any?> = mapOf(
+            "blah" to "hello"
+        )
+        val document = collection.document("test")
+        document.setData(testData)
+
+        val dateToQueryBy = OffsetDateTime.now()
+
+        val testData2: Map<String, Any?> = mapOf(
+            "blah" to "wow"
+        )
+        val document2 = collection.document("test")
+        document2.setData(testData2)
+
+        // will search document as it was on `dateToQueryBy`
+        val results = collection.query(queryDate = dateToQueryBy) {
+            whereEqualTo("blah", "hello")
+        }
+
+        assertTrue(results.map { it.data.id }.contains(document.data.id))
     }
 }

@@ -7,6 +7,7 @@ import me.jameshunt.db.Collection
 import me.jameshunt.plinko.merkle.DiffParser
 import me.jameshunt.plinko.store.domain.Commit
 import me.jameshunt.plinko.store.domain.DocumentIndex
+import me.jameshunt.plinko.store.domain.format
 import me.jameshunt.plinko.store.domain.now
 import org.apache.commons.codec.digest.DigestUtils
 import java.time.OffsetDateTime
@@ -88,9 +89,8 @@ class DocumentAndCollectionDB(private val queries: DocumentsAndCollectionsQuerie
         queries.addDocumentIndex(documentId, keyHash, valueHash, now)
     }
 
-    fun getDocumentIndex(parentCollectionId: CollectionId, keyHash: String): List<DocumentIndex> {
-        // todo: filter out index with date newer than 'x' for searching by arbitrary date
-        return queries.selectIndex(parentCollectionId, keyHash).executeAsList()
+    fun getDocumentIndex(parentCollectionId: CollectionId, keyHash: String, queryDate: OffsetDateTime): List<DocumentIndex> {
+        return queries.selectIndex(parentCollectionId, keyHash, queryDate.format()).executeAsList()
     }
 
     private fun String.toDiffJson(): Map<String, Any> {

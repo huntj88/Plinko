@@ -1,0 +1,15 @@
+CREATE TABLE hash_value (
+  md5 TEXT NOT NULL PRIMARY KEY,
+  value BLOB NOT NULL,
+  value_type TEXT NOT NULL
+);
+
+insert:
+INSERT OR IGNORE INTO hash_value(md5, value, value_type)
+VALUES (?, ?, ?);
+
+
+selectWhereMD5:
+SELECT *
+FROM hash_value
+WHERE md5 IN ?;

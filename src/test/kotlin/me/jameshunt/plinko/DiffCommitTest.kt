@@ -1,8 +1,7 @@
 package me.jameshunt.plinko
 
-import me.jameshunt.plinko.merkle.DiffCommit
-import me.jameshunt.plinko.merkle.DiffGenerator
-import me.jameshunt.plinko.merkle.DiffParser
+import com.fasterxml.jackson.databind.ObjectMapper
+import me.jameshunt.plinko.merkle.*
 import org.junit.Assert
 import org.junit.Test
 
@@ -457,5 +456,56 @@ class DiffCommitTest {
         val actual = DiffCommit.commit(before, diff as DiffParser.ValueInfo.Object)
 
         Assert.assertEquals(expected, actual)
+    }
+
+    @Test
+    fun `hunch`() {
+        val before = "{}".toJsonHashObject()
+
+        val diff0 = DiffGenerator.getDiff(HashObject(nullValue, emptyMap()), tree1.toHashObject()).let { DiffParser.parseDiff(it) }
+        val diff1 = DiffGenerator.getDiff(tree1.toHashObject(), tree2.toHashObject()).let { DiffParser.parseDiff(it) }
+        val diff2 = DiffGenerator.getDiff(tree2.toHashObject(), tree3.toHashObject()).let { DiffParser.parseDiff(it) }
+        val diff3 = DiffGenerator.getDiff(tree3.toHashObject(), tree4.toHashObject()).let { DiffParser.parseDiff(it) }
+
+        val result1 = DiffCommit.commit(before, diff0 as DiffParser.ValueInfo.Object)
+        val result2 = DiffCommit.commit(result1 as HashObject, diff1 as DiffParser.ValueInfo.Object)
+        val result3 = DiffCommit.commit(result2 as HashObject, diff2 as DiffParser.ValueInfo.Object)
+        val result4 = DiffCommit.commit(result3 as HashObject, diff3 as DiffParser.ValueInfo.Object)
+
+        println(ObjectMapper().writeValueAsString(result4))
+        println(ObjectMapper().writeValueAsString(tree4.toHashObject()))
+        Assert.assertEquals(tree4.toHashObject(), result4)
+
+    }
+
+    @Test
+    fun `nested object change`() {
+        val before = """
+            {
+              "hello": "wow",
+              "child": {
+                "nope": "yep"
+              }
+            }
+            """.trimIndent().toJsonHashObject()
+
+        val after = """
+            {
+              "hello": "wow",
+              "child": {
+                "nope": "yep",
+                "wowza": "thing"
+              }
+            }
+        """.trimIndent().toJsonHashObject()
+
+        val diff = DiffGenerator.getDiff(before, after).let { DiffParser.parseDiff(it) }
+
+        val actual = DiffCommit.commit(before, diff)
+
+        println(ObjectMapper().writeValueAsString(diff))
+        println(ObjectMapper().writeValueAsString(actual))
+        Assert.assertEquals(after, actual)
+
     }
 }

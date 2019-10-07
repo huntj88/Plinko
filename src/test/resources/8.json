@@ -1,0 +1,24 @@
+{
+  "arrayChange": [
+    "sup",
+    "down",
+    "wow",
+    [
+      "naah"
+    ]
+  ],
+  "stuff": {
+    "name": "foogliest",
+    "key": "value",
+    "addKeyToObjectTest": true,
+    "adultObject": {
+      "dis": "be cool",
+      "myArray": [
+        {
+          "dude": true
+        }
+      ]
+    }
+  }
+}
+

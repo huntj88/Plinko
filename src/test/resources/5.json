@@ -1,0 +1,20 @@
+{
+  "wow": [
+    "sup",
+    "down",
+    "wow"
+  ],
+  "stuff": {
+    "name": "foogliest",
+    "key": "value",
+    "adultObject": {
+      "dis": "be cool",
+      "myArray": [
+        {
+          "dude": true
+        }
+      ]
+    }
+  }
+}
+

@@ -1,5 +1,7 @@
 package me.jameshunt.plinko.merkle
 
+import me.jameshunt.plinko.store.db.MerkleDB
+
 interface HashNode {
     val hash: String
 }
@@ -68,10 +70,9 @@ private fun HashArray.getValueHashes(): List<String> {
     }.flatten()
 }
 
-// TODO
-//fun HashObject.toJObject() = this.toJObject(MerkleDB.values.getJValues(this.getValueHashes()))
+fun HashObject.toJObject() = this.toJObject(MerkleDB.values.getJValues(this.getValueHashes()))
 
-private fun HashObject.toJObject(jValues: List<JValue>): JObject {
+internal fun HashObject.toJObject(jValues: List<JValue>): JObject {
     fun List<JValue>.valueForHash(hash: String) = this.first { it.hash == hash }
 
     val keyValues = this.hObject.map { (hashKey, node) ->

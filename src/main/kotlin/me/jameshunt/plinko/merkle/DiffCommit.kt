@@ -2,35 +2,138 @@ package me.jameshunt.plinko.merkle
 
 object DiffCommit {
 
-    fun commit(hashObject: HashObject, diff: DiffParser.ValueInfo.Object): HashNode {
-        // if no diff then just return the original hashObject
-        if (diff.to == hashObject.hash) return hashObject
+    fun commit(hashObject: HashObject, diff: DiffParser.ValueInfo): HashNode {
+        when (diff) {
+            is DiffParser.ValueInfo.Object -> {
+                //if no diff then just return the original hashObject
+                if (diff.to == hashObject.hash) return hashObject
 
-        val changed = diff.children
-            .map { (keyInfo, valueInfo) ->
-                when (keyInfo) {
-                    is DiffParser.KeyInfo.KeySame -> {
-                        assert(valueInfo != null)
-                        keyInfo.hash to valueInfo!!.toHashVersion()
-                    }
-                    is DiffParser.KeyInfo.KeyChanged -> {
-                        // if value info not null, new key/value pair added
-                        // otherwise, only key changed, and copy value from previous object
-                        when (valueInfo) {
-                            is DiffParser.ValueInfo.Object,
-                            is DiffParser.ValueInfo.Array,
-                            is DiffParser.ValueInfo.Value -> keyInfo.to to valueInfo.toHashVersion()
-                            null -> keyInfo.to to hashObject.hObject[keyInfo.from]!!
-                            else -> throw IllegalStateException()
+                val keysToCheckIfChildChanged = diff.children
+                    .map { it.key }
+                    .map { diffKeyInfo ->
+                        when (diffKeyInfo) {
+                            is DiffParser.KeyInfo.KeySame -> diffKeyInfo.hash
+                            is DiffParser.KeyInfo.KeyChanged -> diffKeyInfo.from
                         }
                     }
-                }
-            }
-            .filter { (key, _) -> key != nullValue }
-            .toMap()
+                val childrenNotChanged = hashObject.hObject.mapNotNull { (childKey, node) ->
+                    val changed = keysToCheckIfChildChanged.contains(childKey)
+                    when {
+                        changed -> null
+                        else -> childKey to node
+                    }
+                }.toMap()
 
-        return HashObject(diff.to, changed).also { println(it) }
+                val changed = diff.children
+                    .map { (keyInfo, valueInfo) ->
+                        when (keyInfo) {
+                            is DiffParser.KeyInfo.KeySame -> {
+                                assert(valueInfo != null)
+                                val childTree = hashObject.hObject[keyInfo.hash]!!
+                                when(childTree) {
+                                    is HashObject -> keyInfo.hash to commit(childTree, valueInfo!!)
+                                    is HashArray -> keyInfo.hash to commit(childTree, valueInfo!!)
+                                    is HashValue -> TODO()
+                                    else -> throw IllegalStateException()
+                                }
+                            }
+                            is DiffParser.KeyInfo.KeyChanged -> {
+                                // if value info not null, new key/value pair added
+                                // otherwise, only key changed, and copy value from previous object
+                                when (valueInfo) {
+                                    is DiffParser.ValueInfo.Object,
+                                    is DiffParser.ValueInfo.Array,
+                                    is DiffParser.ValueInfo.Value -> keyInfo.to to valueInfo.toHashVersion()
+                                    null -> keyInfo.to to hashObject.hObject[keyInfo.from]!!
+                                    else -> throw IllegalStateException()
+                                }
+                            }
+                        }
+                    }
+                    .filter { (key, _) -> key != nullValue }
+                    .toMap()
+
+                return HashObject(diff.to, changed + childrenNotChanged).also { println(it) }
+            }
+            is DiffParser.ValueInfo.ObjectToArray -> TODO()
+            is DiffParser.ValueInfo.ObjectToValue -> TODO()
+
+            is DiffParser.ValueInfo.Array,
+            is DiffParser.ValueInfo.Value,
+            is DiffParser.ValueInfo.ArrayToObject,
+            is DiffParser.ValueInfo.ArrayToValue,
+            is DiffParser.ValueInfo.ValueToObject,
+            is DiffParser.ValueInfo.ValueToArray -> throw IllegalStateException()
+        }
     }
+
+    private fun commit(hashArray: HashArray, diff: DiffParser.ValueInfo): HashNode {
+        when(diff) {
+            is DiffParser.ValueInfo.Object -> TODO()
+            is DiffParser.ValueInfo.Array -> {
+                val hashesToCheckIfChildChanged = diff.children.map {
+                    when (it) {
+                        is DiffParser.ValueInfo.Value -> it.from
+                        is DiffParser.ValueInfo.Object -> it.from
+                        is DiffParser.ValueInfo.Array -> it.from
+                        else -> throw IllegalStateException()
+                    }
+                }
+                val childrenNotChanged = hashArray.hArray.mapNotNull { node ->
+                    val changed = hashesToCheckIfChildChanged.contains(node.hash)
+                    when {
+                        changed -> null
+                        else -> node
+                    }
+                }
+
+                val childrenChanged = diff.children
+                    .map { valueInfo -> valueInfo.toHashVersion() }
+                    .filter { it.hash != nullValue }
+
+                return HashArray(diff.to, childrenNotChanged + childrenChanged)
+            }
+            is DiffParser.ValueInfo.ArrayToObject -> TODO()
+            is DiffParser.ValueInfo.ArrayToValue -> TODO()
+
+            is DiffParser.ValueInfo.Value,
+            is DiffParser.ValueInfo.ObjectToArray,
+            is DiffParser.ValueInfo.ObjectToValue,
+            is DiffParser.ValueInfo.ValueToObject,
+            is DiffParser.ValueInfo.ValueToArray -> throw IllegalStateException()
+        }
+    }
+
+
+//    fun commit(hashObject: HashObject, diff: DiffParser.ValueInfo.Object): HashNode {
+//        // if no diff then just return the original hashObject
+//        if (diff.to == hashObject.hash) return hashObject
+//
+//        val changed = diff.children
+//            .map { (keyInfo, valueInfo) ->
+//                when (keyInfo) {
+//                    is DiffParser.KeyInfo.KeySame -> {
+//                        assert(valueInfo != null)
+//                        keyInfo.hash to valueInfo!!.toHashVersion()
+//                    }
+//                    is DiffParser.KeyInfo.KeyChanged -> {
+//                        // if value info not null, new key/value pair added
+//                        // otherwise, only key changed, and copy value from previous object
+//                        when (valueInfo) {
+//                            is DiffParser.ValueInfo.Object,
+//                            is DiffParser.ValueInfo.Array,
+//                            is DiffParser.ValueInfo.Value -> keyInfo.to to valueInfo.toHashVersion()
+//                            null -> keyInfo.to to hashObject.hObject[keyInfo.from]!!
+//                            else -> throw IllegalStateException()
+//                        }
+//                    }
+//                }
+//            }
+//            .filter { (key, _) -> key != nullValue }
+//            .toMap()
+//
+//        return HashObject(diff.to, changed).also { println(it) }
+//    }
 
     private fun DiffParser.ValueInfo.toHashVersion(): HashNode {
         return when (this) {

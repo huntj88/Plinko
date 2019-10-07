@@ -30,10 +30,10 @@ object DiffCommit {
                             is DiffParser.KeyInfo.KeySame -> {
                                 assert(valueInfo != null)
                                 val childTree = hashObject.hObject[keyInfo.hash]!!
-                                when(childTree) {
+                                when (childTree) {
                                     is HashObject -> keyInfo.hash to commit(childTree, valueInfo!!)
                                     is HashArray -> keyInfo.hash to commit(childTree, valueInfo!!)
-                                    is HashValue -> TODO()
+                                    is HashValue -> keyInfo.hash to valueInfo!!.toHashVersion()
                                     else -> throw IllegalStateException()
                                 }
                             }
@@ -55,8 +55,8 @@ object DiffCommit {
 
                 return HashObject(diff.to, changed + childrenNotChanged).also { println(it) }
             }
-            is DiffParser.ValueInfo.ObjectToArray -> TODO()
-            is DiffParser.ValueInfo.ObjectToValue -> TODO()
+            is DiffParser.ValueInfo.ObjectToArray,
+            is DiffParser.ValueInfo.ObjectToValue -> return diff.toHashVersion()
 
             is DiffParser.ValueInfo.Array,
             is DiffParser.ValueInfo.Value,
@@ -68,8 +68,7 @@ object DiffCommit {
     }
 
     private fun commit(hashArray: HashArray, diff: DiffParser.ValueInfo): HashNode {
-        when(diff) {
-            is DiffParser.ValueInfo.Object -> TODO()
+        when (diff) {
             is DiffParser.ValueInfo.Array -> {
                 val hashesToCheckIfChildChanged = diff.children.map {
                     when (it) {
@@ -93,9 +92,10 @@ object DiffCommit {
 
                 return HashArray(diff.to, childrenNotChanged + childrenChanged)
             }
-            is DiffParser.ValueInfo.ArrayToObject -> TODO()
-            is DiffParser.ValueInfo.ArrayToValue -> TODO()
+            is DiffParser.ValueInfo.ArrayToObject,
+            is DiffParser.ValueInfo.ArrayToValue -> return diff.toHashVersion()
 
+            is DiffParser.ValueInfo.Object,
             is DiffParser.ValueInfo.Value,
             is DiffParser.ValueInfo.ObjectToArray,
             is DiffParser.ValueInfo.ObjectToValue,
@@ -103,37 +103,6 @@ object DiffCommit {
             is DiffParser.ValueInfo.ValueToArray -> throw IllegalStateException()
         }
     }
-
-
-//    fun commit(hashObject: HashObject, diff: DiffParser.ValueInfo.Object): HashNode {
-//        // if no diff then just return the original hashObject
-//        if (diff.to == hashObject.hash) return hashObject
-//
-//        val changed = diff.children
-//            .map { (keyInfo, valueInfo) ->
-//                when (keyInfo) {
-//                    is DiffParser.KeyInfo.KeySame -> {
-//                        assert(valueInfo != null)
-//                        keyInfo.hash to valueInfo!!.toHashVersion()
-//                    }
-//                    is DiffParser.KeyInfo.KeyChanged -> {
-//                        // if value info not null, new key/value pair added
-//                        // otherwise, only key changed, and copy value from previous object
-//                        when (valueInfo) {
-//                            is DiffParser.ValueInfo.Object,
-//                            is DiffParser.ValueInfo.Array,
-//                            is DiffParser.ValueInfo.Value -> keyInfo.to to valueInfo.toHashVersion()
-//                            null -> keyInfo.to to hashObject.hObject[keyInfo.from]!!
-//                            else -> throw IllegalStateException()
-//                        }
-//                    }
-//                }
-//            }
-//            .filter { (key, _) -> key != nullValue }
-//            .toMap()
-//
-//        return HashObject(diff.to, changed).also { println(it) }
-//    }
 
     private fun DiffParser.ValueInfo.toHashVersion(): HashNode {
         return when (this) {

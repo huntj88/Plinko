@@ -16,8 +16,6 @@ typealias CollectionId = Long
 
 class DocumentAndCollectionDB(private val queries: DocumentsAndCollectionsQueries) {
 
-    val rootDocument = "rootDocument"
-
     fun addCollection(parentDocument: DocumentId, name: String) {
         queries.addCollection(
             parent_document_id = parentDocument,

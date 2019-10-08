@@ -55,7 +55,7 @@ object DiffRevert {
                     .filter { (key, _) -> key != nullValue }
                     .toMap()
 
-                return HashObject(diff.from, changed + childrenNotChanged).also { println(it) }
+                return HashObject(diff.from, changed + childrenNotChanged)
             }
             // these seem backward, but revert instead of commit, compare to committer
             is DiffParser.ValueInfo.ArrayToObject,

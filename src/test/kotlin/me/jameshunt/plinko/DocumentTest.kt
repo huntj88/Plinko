@@ -5,6 +5,7 @@ import me.jameshunt.plinko.store.Plinko
 import org.junit.Assert
 import org.junit.Test
 import java.io.File
+import java.time.OffsetDateTime
 
 class DocumentTest {
 
@@ -68,7 +69,6 @@ class DocumentTest {
             setData(tree11)
 
             val data = getData()
-            ObjectMapper().writeValueAsString(data).let(::println)
             Assert.assertEquals(tree11, data)
         }
     }
@@ -100,5 +100,27 @@ class DocumentTest {
             .data.document_name
 
         Assert.assertEquals("wow", docChildCollectionChildDocName)
+    }
+
+    @Test
+    fun `test asOfDate for document content`() {
+        val collection = Plinko.collection("asOfDate")
+
+        val testData: Map<String, Any?> = mapOf(
+            "blah" to "hello"
+        )
+
+        val testData2: Map<String, Any?> = mapOf(
+            "blah" to "wow"
+        )
+
+        val document = collection.document("test")
+        document.setData(testData)
+
+        val dateToQueryBy = OffsetDateTime.now()
+        document.setData(testData2)
+
+        Assert.assertTrue(document.getData(asOfDate = dateToQueryBy)["blah"] == "hello")
+        Assert.assertTrue(document.getData(asOfDate = OffsetDateTime.now())["blah"] == "wow")
     }
 }

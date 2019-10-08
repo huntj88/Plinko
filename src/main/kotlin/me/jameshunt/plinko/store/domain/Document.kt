@@ -3,25 +3,28 @@ package me.jameshunt.plinko.store.domain
 import me.jameshunt.db.IndexedField
 import me.jameshunt.plinko.merkle.*
 import me.jameshunt.plinko.store.db.MerkleDB
+import java.time.OffsetDateTime
 
 typealias DocumentFromDB = me.jameshunt.db.Document
 typealias DocumentIndex = me.jameshunt.db.SelectIndex
 
 class Document(internal val data: DocumentFromDB) {
 
-    // TODO only update when there is actually a new diff set
-    private val hashTree: HashObject
-        get() {
-            val commits = MerkleDB.docCollection
-                .getDocumentCommits(data.id)
-                .map { it.diff as DiffParser.ValueInfo.Object }
+    //TODO: can be optimized so its not recomputed every time?
+    private fun hashTree(asOfDate: OffsetDateTime): HashObject {
+        val commits = MerkleDB.docCollection
+            .getDocumentCommits(data.id)
+            .filter { it.createdAt.isBefore(asOfDate) || it.createdAt.isEqual(asOfDate) }
+            .map { it.diff as DiffParser.ValueInfo.Object }
 
-            return commits.fold(HashObject(nullValue, emptyMap())) { acc, next ->
-                DiffCommit.commit(acc, next) as HashObject
-            }
+        return commits.fold(HashObject(nullValue, emptyMap())) { acc, next ->
+            DiffCommit.commit(acc, next) as HashObject
         }
+    }
 
-    fun getData(): Map<String, Any?> = JsonParser.write(hashTree.toJObject())
+    fun getData(asOfDate: OffsetDateTime = OffsetDateTime.now()): Map<String, Any?> {
+        return JsonParser.write(hashTree(asOfDate).toJObject())
+    }
 
     fun setData(json: Map<String, Any?>) {
         val dataToSet = JsonParser.read(json).also {
@@ -29,7 +32,7 @@ class Document(internal val data: DocumentFromDB) {
             it.extractJValues().forEach(MerkleDB.values::addJValue)
         }
 
-        val diff = DiffGenerator.getDiff(hashTree, dataToSet.toHashObject())
+        val diff = DiffGenerator.getDiff(hashTree(OffsetDateTime.now()), dataToSet.toHashObject())
         MerkleDB.docCollection.commitDiff(data.id, diff)
         dataToSet.setIndexData(getIndexedFields())
     }

@@ -350,8 +350,8 @@ class IndexTest {
     }
 
     @Test
-    fun `test queryDate for past indexes`() {
-        val collection = Plinko.collection("queryDatePast")
+    fun `test asOfDate for past indexes`() {
+        val collection = Plinko.collection("asOfDate")
         collection.setIndex("blah")
 
         val testData: Map<String, Any?> = mapOf(
@@ -365,14 +365,16 @@ class IndexTest {
         val testData2: Map<String, Any?> = mapOf(
             "blah" to "wow"
         )
-        val document2 = collection.document("test")
-        document2.setData(testData2)
+
+        document.setData(testData2)
 
         // will search document as it was on `dateToQueryBy`
-        val results = collection.query(queryDate = dateToQueryBy) {
+        val results = collection.query(asOfDate = dateToQueryBy) {
             whereEqualTo("blah", "hello")
         }
 
         assertTrue(results.map { it.data.id }.contains(document.data.id))
+        assertTrue(results.first().getData(dateToQueryBy)["blah"] == "hello")
+        assertTrue(results.first().getData(OffsetDateTime.now())["blah"] == "wow")
     }
 }

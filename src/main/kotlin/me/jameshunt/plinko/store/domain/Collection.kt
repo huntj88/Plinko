@@ -29,10 +29,10 @@ class Collection(internal val data: CollectionFromDB) {
     }
 
     fun query(
-        queryDate: OffsetDateTime = OffsetDateTime.now(),
+        asOfDate: OffsetDateTime = OffsetDateTime.now(),
         queryBuilder: QueryBuilder.() -> QueryBuilder.QueryPart
     ): List<Document> {
-        return QueryBuilder(data.id, queryDate)
+        return QueryBuilder(data.id, asOfDate)
             .run(queryBuilder)
             .found
             .let { docIds ->
@@ -50,11 +50,11 @@ class Collection(internal val data: CollectionFromDB) {
     }
 }
 
-class QueryBuilder(private val collectionId: CollectionId, private val queryDate: OffsetDateTime) {
+class QueryBuilder(private val collectionId: CollectionId, private val asOfDate: OffsetDateTime) {
 
     fun whereEqualTo(key: String, value: Any?): QueryPart {
         return MerkleDB.docCollection
-            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), queryDate)
+            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), asOfDate)
             .filter { it.value_hash == JValue(value).hash }
             .map { it.document_id }
             .let { QueryPart(it.toSet()) }
@@ -64,7 +64,7 @@ class QueryBuilder(private val collectionId: CollectionId, private val queryDate
         val jQueryValue = JValue(value)
 
         return MerkleDB.docCollection
-            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), queryDate)
+            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), asOfDate)
             .let { indexes ->
                 val jValues = MerkleDB.values.getJValues(indexes.map { it.value_hash })
                 indexes.map { index -> index to jValues.first { it.hash == index.value_hash } }
@@ -88,7 +88,7 @@ class QueryBuilder(private val collectionId: CollectionId, private val queryDate
         val jQueryValue = JValue(value)
 
         return MerkleDB.docCollection
-            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), queryDate)
+            .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), asOfDate)
             .let { indexes ->
                 val jValues = MerkleDB.values.getJValues(indexes.map { it.value_hash })
                 indexes.map { index -> index to jValues.first { it.hash == index.value_hash } }

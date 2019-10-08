@@ -53,7 +53,7 @@ object DiffCommit {
                     .filter { (key, _) -> key != nullValue }
                     .toMap()
 
-                return HashObject(diff.to, changed + childrenNotChanged).also { println(it) }
+                return HashObject(diff.to, changed + childrenNotChanged)
             }
             is DiffParser.ValueInfo.ObjectToArray,
             is DiffParser.ValueInfo.ObjectToValue -> return diff.toHashVersion()

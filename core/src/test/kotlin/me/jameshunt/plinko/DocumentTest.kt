@@ -120,7 +120,7 @@ class DocumentTest {
         val dateToQueryBy = OffsetDateTime.now()
         document.setData(testData2)
 
-        Assert.assertTrue(document.getData(asOfDate = dateToQueryBy)["blah"] == "hello")
-        Assert.assertTrue(document.getData(asOfDate = OffsetDateTime.now())["blah"] == "wow")
+        Assert.assertEquals("hello", document.getData(asOfDate = dateToQueryBy)["blah"])
+        Assert.assertEquals("wow", document.getData(asOfDate = OffsetDateTime.now())["blah"])
     }
 }

@@ -15,10 +15,8 @@ class IndexTest {
     fun `test set get index`() {
         Plinko.collection("indexTest").run {
             setIndex("wow.sup")
-            val index = document("banana").getIndexedFields().first()
-
-            println(index)
-            assertEquals("wow.sup", index.key)
+            val indexExists = document("banana").getIndexedFields().map { it.key }.contains("wow.sup")
+            assertTrue(indexExists)
         }
     }
 
@@ -357,14 +355,15 @@ class IndexTest {
         val testData: Map<String, Any?> = mapOf(
             "blah" to "hello"
         )
-        val document = collection.document("test")
-        document.setData(testData)
-
-        val dateToQueryBy = OffsetDateTime.now()
 
         val testData2: Map<String, Any?> = mapOf(
             "blah" to "wow"
         )
+
+        val document = collection.document("test")
+        document.setData(testData)
+
+        val dateToQueryBy = OffsetDateTime.now()
 
         document.setData(testData2)
 
@@ -374,7 +373,7 @@ class IndexTest {
         }
 
         assertTrue(results.map { it.data.id }.contains(document.data.id))
-        assertTrue(results.first().getData(dateToQueryBy)["blah"] == "hello")
-        assertTrue(results.first().getData(OffsetDateTime.now())["blah"] == "wow")
+        assertEquals("hello", results.first().getData(dateToQueryBy)["blah"])
+        assertEquals("wow", results.first().getData(OffsetDateTime.now())["blah"])
     }
 }

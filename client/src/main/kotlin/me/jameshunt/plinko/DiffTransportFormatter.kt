@@ -5,9 +5,9 @@ import me.jameshunt.plinko.store.db.MerkleDB
 import me.jameshunt.plinko.store.domain.Commit
 import me.jameshunt.plinko.store.domain.format
 
-object DiffSender {
+object DiffTransportFormatter {
 
-    fun sendCommit(commit: Commit): Map<String, Any?> {
+    fun format(commit: Commit): Map<String, Any?> {
         return mapOf(
             "documentId" to commit.documentId,
             "createdAt" to commit.createdAt.format(),
@@ -43,12 +43,12 @@ object DiffSender {
     }
 
     private fun DiffParser.ValueInfo.ValueToObject.getValueHashes(): List<String> {
-        return this.objectChildren.children() + from
+        return this.objectChildren.children()
     }
 
     private fun Map<DiffParser.KeyInfo, DiffParser.ValueInfo?>.children(): List<String> {
         return this.flatMap { (key, value) ->
-            key.hashValue() + (value?.hashValue() ?: emptyList())
+            key.hashValue() + (value?.getValueHashes() ?: emptyList())
         }
     }
 
@@ -61,25 +61,25 @@ object DiffSender {
     }
 
     private fun DiffParser.ValueInfo.ValueToArray.getValueHashes(): List<String> {
-        return this.arrayChildren.children() + from
+        return this.arrayChildren.children()
     }
 
     private fun List<DiffParser.ValueInfo>.children(): List<String> {
-        return this.flatMap { value -> value.hashValue() }
+        return this.flatMap { value -> value.getValueHashes() }
     }
 
     private fun DiffParser.KeyInfo.hashValue(): List<String> {
         return when(this) {
-            is DiffParser.KeyInfo.KeySame -> listOf(hash)
-            is DiffParser.KeyInfo.KeyChanged -> listOf(from, to)
+            is DiffParser.KeyInfo.KeySame -> emptyList()
+            is DiffParser.KeyInfo.KeyChanged -> listOf(to)
         }
     }
 
     private fun DiffParser.ValueInfo.hashValue(): List<String> {
         return when (this) {
-            is DiffParser.ValueInfo.Value -> listOf(from, to)
-            is DiffParser.ValueInfo.ArrayToValue -> listOf(from, to)
-            is DiffParser.ValueInfo.ObjectToValue -> listOf(from, to)
+            is DiffParser.ValueInfo.Value -> listOf(to)
+            is DiffParser.ValueInfo.ArrayToValue -> listOf(to)
+            is DiffParser.ValueInfo.ObjectToValue -> listOf(to)
             is DiffParser.ValueInfo.Object,
             is DiffParser.ValueInfo.Array,
             is DiffParser.ValueInfo.ObjectToArray,

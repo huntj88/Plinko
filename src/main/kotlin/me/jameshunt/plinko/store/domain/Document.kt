@@ -14,7 +14,7 @@ class Document(internal val data: DocumentFromDB) {
     private fun hashTree(asOfDate: OffsetDateTime): HashObject {
         val commits = MerkleDB.docCollection
             .getDocumentCommits(data.id)
-            .filter { it.createdAt.isBefore(asOfDate) || it.createdAt.isEqual(asOfDate) }
+            .filter { it.createdAt.toInstant() <= asOfDate.toInstant() }
             .map { it.diff as DiffParser.ValueInfo.Object }
 
         return commits.fold(HashObject(nullValue, emptyMap())) { acc, next ->

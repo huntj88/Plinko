@@ -15,7 +15,7 @@ class Document(internal val data: DocumentFromDB) {
         val commits = MerkleDB.docCollection
             .getDocumentCommits(data.id)
             .filter { it.createdAt.toInstant() <= asOfDate.toInstant() }
-            .map { it.diff as DiffParser.ValueInfo.Object }
+            .map { DiffParser.parseDiff(it.diff) as DiffParser.ValueInfo.Object }
 
         return commits.fold(HashObject(nullValue, emptyMap())) { acc, next ->
             DiffCommit.commit(acc, next) as HashObject

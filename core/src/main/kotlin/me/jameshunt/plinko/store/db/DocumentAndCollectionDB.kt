@@ -2,9 +2,10 @@ package me.jameshunt.plinko.store.db
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
-import me.jameshunt.db.*
 import me.jameshunt.db.Collection
-import me.jameshunt.plinko.merkle.DiffParser
+import me.jameshunt.db.Document
+import me.jameshunt.db.DocumentsAndCollectionsQueries
+import me.jameshunt.db.IndexedField
 import me.jameshunt.plinko.store.domain.Commit
 import me.jameshunt.plinko.store.domain.DocumentIndex
 import me.jameshunt.plinko.store.domain.format
@@ -70,7 +71,7 @@ class DocumentAndCollectionDB(private val queries: DocumentsAndCollectionsQuerie
             Commit(
                 documentId = it.document_id,
                 createdAt = OffsetDateTime.parse(it.created_at),
-                diff = DiffParser.parseDiff(it.diff.toDiffJson())
+                diff = it.diff.toDiffJson()
             )
         }
     }
@@ -89,7 +90,11 @@ class DocumentAndCollectionDB(private val queries: DocumentsAndCollectionsQuerie
         queries.addDocumentIndex(documentId, keyHash, valueHash, now)
     }
 
-    fun getDocumentIndex(parentCollectionId: CollectionId, keyHash: String, queryDate: OffsetDateTime): List<DocumentIndex> {
+    fun getDocumentIndex(
+        parentCollectionId: CollectionId,
+        keyHash: String,
+        queryDate: OffsetDateTime
+    ): List<DocumentIndex> {
         return queries.selectIndex(parentCollectionId, keyHash, queryDate.format()).executeAsList()
     }
 

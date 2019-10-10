@@ -1,4 +1,4 @@
-package me.jameshunt.plinko
+package me.jameshunt.plinko.client
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper

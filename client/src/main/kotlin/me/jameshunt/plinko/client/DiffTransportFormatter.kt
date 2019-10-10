@@ -1,4 +1,4 @@
-package me.jameshunt.plinko
+package me.jameshunt.plinko.client
 
 import me.jameshunt.plinko.merkle.DiffParser
 import me.jameshunt.plinko.store.db.MerkleDB

@@ -24,7 +24,7 @@ class DiffTransportFormatterTest {
         1,
         1,
         1,
-        1,
+        1000000,
         ZoneOffset.UTC
     )
 
@@ -54,7 +54,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "a8cfde6331bd59eb2ac96f8911c4b666",
@@ -115,7 +115,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "4ec31704a3ec981be364071f6b6c9adc",
@@ -182,7 +182,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "4ec31704a3ec981be364071f6b6c9adc",
@@ -244,7 +244,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "4ec31704a3ec981be364071f6b6c9adc",
@@ -312,7 +312,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "4ec31704a3ec981be364071f6b6c9adc",
@@ -399,7 +399,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "2d3ced6443d9a19d2b87bb06656283f6",
@@ -483,7 +483,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "4ec31704a3ec981be364071f6b6c9adc",
@@ -549,7 +549,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "4ec31704a3ec981be364071f6b6c9adc",
@@ -625,7 +625,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "e3c38f42d8eca719ae2b293a518a2ba9",
@@ -695,7 +695,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "0c2c0a8bd2988b7a69b90723538ce423",
@@ -770,7 +770,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "9b49796db5ddf5b6ed7f4fd85bc6f6e8",
@@ -860,7 +860,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "e3c38f42d8eca719ae2b293a518a2ba9",
@@ -925,7 +925,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "b3cda3d23485d5959a15561a7aa4b0f3",
@@ -1016,7 +1016,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "e3c38f42d8eca719ae2b293a518a2ba9",
@@ -1088,7 +1088,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "675152b84d5249a416f3969951e2d121",
@@ -1156,7 +1156,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "a8cfde6331bd59eb2ac96f8911c4b666",
@@ -1219,7 +1219,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "b3cda3d23485d5959a15561a7aa4b0f3",
@@ -1295,7 +1295,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "e3c38f42d8eca719ae2b293a518a2ba9",
@@ -1370,7 +1370,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "ffa96327843d20417a8ea93f72cf002a",
@@ -1440,7 +1440,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "e3c38f42d8eca719ae2b293a518a2ba9",
@@ -1511,7 +1511,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "1da17f77bd78eb2de76c3f21166851ec",
@@ -1587,7 +1587,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "a8cfde6331bd59eb2ac96f8911c4b666",
@@ -1651,7 +1651,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "e6cf1d2f3db117c3813f0cc8ff3dc2e0",
@@ -1724,7 +1724,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "b6ab248bb2ab1ad41ef359528b7764f5",
@@ -1817,7 +1817,7 @@ class DiffTransportFormatterTest {
         val expected = """
             {
               "documentId": 55555555555,
-              "createdAt": "2019-01-01T01:01:01.000000001Z",
+              "createdAt": "2019-01-01T01:01:01.001Z",
               "diff": {
                 "hash": {
                   "from": "c6892c411d933af8556a8f39e010c3ac",

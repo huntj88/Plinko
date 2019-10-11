@@ -17,8 +17,8 @@ class Document(internal val data: DocumentFromDB) {
             .filter { it.createdAt.toInstant() <= asOfDate.toInstant() }
             .map { DiffParser.parseDiff(it.diff) as DiffParser.ValueInfo.Object }
 
-        return commits.fold(HashObject(nullValue, emptyMap())) { acc, next ->
-            DiffCommit.commit(acc, next) as HashObject
+        return commits.fold(HashObject(nullValue, emptyMap())) { partialDocument, nextDiff ->
+            DiffCommit.commit(partialDocument, nextDiff) as HashObject
         }
     }
 

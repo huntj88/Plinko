@@ -1,5 +1,7 @@
-package me.jameshunt.plinko.merkle
+package me.jameshunt.plinko.transport
 
+import me.jameshunt.plinko.merkle.DiffParser
+import me.jameshunt.plinko.merkle.nullValue
 import me.jameshunt.plinko.store.Plinko
 import me.jameshunt.plinko.store.domain.Commit
 import me.jameshunt.plinko.store.domain.format
@@ -71,7 +73,7 @@ object DiffTransportFormatter {
         return when (this) {
             is DiffParser.KeyInfo.KeySame -> emptyList()
             is DiffParser.KeyInfo.KeyChanged -> listOf(to)
-        }
+        }.filter { it != nullValue }
     }
 
     private fun DiffParser.ValueInfo.hashValue(): List<String> {
@@ -80,6 +82,6 @@ object DiffTransportFormatter {
             is DiffParser.ValueInfo.ArrayToValue -> listOf(to)
             is DiffParser.ValueInfo.ObjectToValue -> listOf(to)
             else -> throw IllegalStateException()
-        }
+        }.filter { it != nullValue }
     }
 }

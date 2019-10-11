@@ -1,20 +1,16 @@
-package me.jameshunt.plinko
+package me.jameshunt.plinko.transport
 
-import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import me.jameshunt.plinko.merkle.DiffGenerator
-import me.jameshunt.plinko.merkle.DiffTransportFormatter
 import me.jameshunt.plinko.merkle.JsonParser
 import me.jameshunt.plinko.merkle.toHashObject
 import me.jameshunt.plinko.store.Plinko
 import me.jameshunt.plinko.store.domain.Commit
+import me.jameshunt.plinko.toJson
 import org.junit.Assert
 import org.junit.Test
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
-
-fun String.toJsonObject(): Map<String, Any?> = ObjectMapper()
-    .readValue<Map<String, Any?>>(this, object : TypeReference<Map<String, Any?>>() {})
 
 class DiffTransportFormatterTest {
     private val objectMapper = ObjectMapper()
@@ -33,13 +29,13 @@ class DiffTransportFormatterTest {
 
     @Test
     fun `add key-simpleValue to object`() {
-        val before = "{}".toJsonObject()
+        val before = "{}".toJson()
 
         val after = """
             {
               "bob": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("add key-simpleValue to object")
@@ -85,7 +81,7 @@ class DiffTransportFormatterTest {
                 "9f9d51bc70ef21ca5c14f307980a29d8": "bob"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -99,8 +95,8 @@ class DiffTransportFormatterTest {
             {
               "bob": "nope"
             }
-        """.toJsonObject()
-        val after = "{}".toJsonObject()
+        """.toJson()
+        val after = "{}".toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("remove key-simpleValue from object")
@@ -143,7 +139,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -157,13 +153,13 @@ class DiffTransportFormatterTest {
             {
               "bob": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
               "susan": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko
@@ -205,7 +201,7 @@ class DiffTransportFormatterTest {
                 "ac575e3eecf0fa410518c2d3a2e7209f": "susan"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -219,13 +215,13 @@ class DiffTransportFormatterTest {
             {
               "bob": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
               "bob": "yep"
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko
@@ -271,7 +267,7 @@ class DiffTransportFormatterTest {
                 "9348ae7851cf3ba798d9564ef308ec25": "yep"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -285,7 +281,7 @@ class DiffTransportFormatterTest {
             {
               "bob": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
@@ -293,7 +289,7 @@ class DiffTransportFormatterTest {
                 "wow": true
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko
@@ -360,7 +356,7 @@ class DiffTransportFormatterTest {
                 "bcedc450f8481e89b1445069acdc3dd9": "wow"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -376,13 +372,13 @@ class DiffTransportFormatterTest {
                 "wow": true
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
               "bob": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("change object to simple value")
@@ -446,7 +442,7 @@ class DiffTransportFormatterTest {
                 "4101bef8794fed986e95dfb54850c68b": "nope"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -460,13 +456,13 @@ class DiffTransportFormatterTest {
             {
               "bob": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("change simple value to array")
@@ -512,7 +508,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -526,13 +522,13 @@ class DiffTransportFormatterTest {
             {
               "bob": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
               "bob": ["nope"]
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("change simple value to array with values")
@@ -588,7 +584,7 @@ class DiffTransportFormatterTest {
                 "4101bef8794fed986e95dfb54850c68b": "nope"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -602,13 +598,13 @@ class DiffTransportFormatterTest {
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
               "bob": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("change array to simple value")
@@ -656,7 +652,7 @@ class DiffTransportFormatterTest {
                 "4101bef8794fed986e95dfb54850c68b": "nope"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -672,13 +668,13 @@ class DiffTransportFormatterTest {
                 "wow"
               ]
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
               "bob": "nope"
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("change array with value to simple value")
@@ -734,7 +730,7 @@ class DiffTransportFormatterTest {
                 "4101bef8794fed986e95dfb54850c68b": "nope"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -748,12 +744,12 @@ class DiffTransportFormatterTest {
             {
               "bob": {"sup":true}
             }
-        """.toJsonObject()
+        """.toJson()
         val after = """
             {
               "bob": ["no"]
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("change object to array")
@@ -824,7 +820,7 @@ class DiffTransportFormatterTest {
                 "7fa3b767c460b54a2be4d49030b349c7": "no"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -838,12 +834,12 @@ class DiffTransportFormatterTest {
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
         val after = """
             {
               "bob": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("change array to object")
@@ -889,7 +885,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -903,12 +899,12 @@ class DiffTransportFormatterTest {
             {
               "bob": ["nope"]
             }
-        """.toJsonObject()
+        """.toJson()
         val after = """
             {
               "bob": {"yep": true}
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("change array (with values) to object (with values)")
@@ -980,7 +976,7 @@ class DiffTransportFormatterTest {
                 "b326b5062b2f0e69046810717534cb09": true
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -994,12 +990,12 @@ class DiffTransportFormatterTest {
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
         val after = """
             {
               "bob": [{}]
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("add object to array")
@@ -1051,7 +1047,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1065,13 +1061,13 @@ class DiffTransportFormatterTest {
             {
               "bob": [{}]
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("remove object from array")
@@ -1123,7 +1119,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1133,13 +1129,13 @@ class DiffTransportFormatterTest {
 
     @Test
     fun `add array to object`() {
-        val before = "{}".toJsonObject()
+        val before = "{}".toJson()
 
         val after = """
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("add array to object")
@@ -1187,7 +1183,7 @@ class DiffTransportFormatterTest {
                 "9f9d51bc70ef21ca5c14f307980a29d8": "bob"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1201,8 +1197,8 @@ class DiffTransportFormatterTest {
             {
               "bob": ["nope"]
             }
-        """.toJsonObject()
-        val after = "{}".toJsonObject()
+        """.toJson()
+        val after = "{}".toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("remove array from object")
@@ -1256,7 +1252,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1270,7 +1266,7 @@ class DiffTransportFormatterTest {
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
@@ -1278,7 +1274,7 @@ class DiffTransportFormatterTest {
                 "hello"
               ]
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("add simple value to array")
@@ -1331,7 +1327,7 @@ class DiffTransportFormatterTest {
                 "5d41402abc4b2a76b9719d911017c592": "hello"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1347,13 +1343,13 @@ class DiffTransportFormatterTest {
                 "hello"
               ]
             }
-        """.toJsonObject()
+        """.toJson()
 
         val after = """
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("remove simple value from array")
@@ -1404,7 +1400,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1418,12 +1414,12 @@ class DiffTransportFormatterTest {
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
         val after = """
             {
               "bob": [[]]
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("add array to array")
@@ -1475,7 +1471,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1489,12 +1485,12 @@ class DiffTransportFormatterTest {
             {
               "bob": [["wow"]]
             }
-        """.toJsonObject()
+        """.toJson()
         val after = """
             {
               "bob": []
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("remove array from array")
@@ -1554,7 +1550,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1564,13 +1560,13 @@ class DiffTransportFormatterTest {
 
     @Test
     fun `add object to object`() {
-        val before = "{}".toJsonObject()
+        val before = "{}".toJson()
 
         val after = """
             {
               "bob": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("add object to object")
@@ -1618,7 +1614,7 @@ class DiffTransportFormatterTest {
                 "9f9d51bc70ef21ca5c14f307980a29d8": "bob"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1632,9 +1628,9 @@ class DiffTransportFormatterTest {
             {
               "bob": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
-        val after = "{}".toJsonObject()
+        val after = "{}".toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("remove object from object")
@@ -1680,7 +1676,7 @@ class DiffTransportFormatterTest {
               },
               "values": {}
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1697,7 +1693,7 @@ class DiffTransportFormatterTest {
                 "nope": "yep"
               }
             }
-            """.trimIndent().toJsonObject()
+            """.trimIndent().toJson()
 
         val after = """
             {
@@ -1707,7 +1703,7 @@ class DiffTransportFormatterTest {
                 "wowza": "thing"
               }
             }
-        """.trimIndent().toJsonObject()
+        """.trimIndent().toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("nested object change")
@@ -1769,7 +1765,7 @@ class DiffTransportFormatterTest {
                 "8afc1e9bec810034dafd45c6854f1dd9": "thing"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,
@@ -1789,7 +1785,7 @@ class DiffTransportFormatterTest {
                 }
               ]
             }
-            """.trimIndent().toJsonObject()
+            """.trimIndent().toJson()
 
         val after = """
             {
@@ -1800,7 +1796,7 @@ class DiffTransportFormatterTest {
                 }
               ]
             }
-        """.trimIndent().toJsonObject()
+        """.trimIndent().toJson()
 
         // loading data into keymap
         val document = Plinko.collection("testFormat").document("nested array change")
@@ -1895,7 +1891,7 @@ class DiffTransportFormatterTest {
                 "4101bef8794fed986e95dfb54850c68b": "nope"
               }
             }
-        """.toJsonObject()
+        """.toJson()
 
         Assert.assertEquals(
             expected,

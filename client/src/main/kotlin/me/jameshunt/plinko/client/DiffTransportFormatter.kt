@@ -80,12 +80,7 @@ object DiffTransportFormatter {
             is DiffParser.ValueInfo.Value -> listOf(to)
             is DiffParser.ValueInfo.ArrayToValue -> listOf(to)
             is DiffParser.ValueInfo.ObjectToValue -> listOf(to)
-            is DiffParser.ValueInfo.Object,
-            is DiffParser.ValueInfo.Array,
-            is DiffParser.ValueInfo.ObjectToArray,
-            is DiffParser.ValueInfo.ArrayToObject,
-            is DiffParser.ValueInfo.ValueToObject,
-            is DiffParser.ValueInfo.ValueToArray -> emptyList()
+            else -> throw IllegalStateException()
         }
     }
 }

@@ -1,6 +1,5 @@
-package me.jameshunt.plinko.client
+package me.jameshunt.plinko.merkle
 
-import me.jameshunt.plinko.merkle.DiffParser
 import me.jameshunt.plinko.store.Plinko
 import me.jameshunt.plinko.store.domain.Commit
 import me.jameshunt.plinko.store.domain.format
@@ -14,7 +13,7 @@ object DiffTransportFormatter {
             "diff" to commit.diff,
             "values" to DiffParser.parseDiff(commit.diff)
                 .getValueHashes()
-                .let(Plinko::getJValues)
+                .let(Plinko.merkleDB.values::getJValues)
                 .map { it.hash to it.value }
                 .toMap()
         )

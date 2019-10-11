@@ -1,4 +1,5 @@
 rootProject.name = 'plinko'
 include 'core'
 include 'client'
+include 'server'
 

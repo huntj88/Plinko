@@ -3,6 +3,7 @@ package me.jameshunt.plinko.client
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
+import me.jameshunt.plinko.merkle.DiffTransportFormatter
 import me.jameshunt.plinko.store.domain.Commit
 
 object PlinkoClient {

@@ -34,6 +34,4 @@ object Plinko {
     fun collection(name: String): Collection {
         return rootDoc.collection(name)
     }
-
-    fun getJValues(md5s: List<String>): List<JValue> = merkleDB.values.getJValues(md5s)
 }

@@ -1,8 +1,9 @@
-package me.jameshunt.plinko.client
+package me.jameshunt.plinko
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import me.jameshunt.plinko.merkle.DiffGenerator
+import me.jameshunt.plinko.merkle.DiffTransportFormatter
 import me.jameshunt.plinko.merkle.JsonParser
 import me.jameshunt.plinko.merkle.toHashObject
 import me.jameshunt.plinko.store.Plinko

@@ -2,6 +2,7 @@ package me.jameshunt.plinko
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import me.jameshunt.plinko.merkle.*
+import me.jameshunt.plinko.store.Plinko
 import org.junit.Assert
 import org.junit.Test
 
@@ -483,8 +484,8 @@ class DiffCommitTest {
 
         val actual = DiffCommit.commit(before, diff)
 
-        println(ObjectMapper().writeValueAsString(diff))
-        println(ObjectMapper().writeValueAsString(actual))
+        println(Plinko.objectMapper.writeValueAsString(diff))
+        println(Plinko.objectMapper.writeValueAsString(actual))
         Assert.assertEquals(after, actual)
 
     }
@@ -517,8 +518,8 @@ class DiffCommitTest {
 
         val actual = DiffCommit.commit(before, diff)
 
-        println(ObjectMapper().writeValueAsString(diff))
-        println(ObjectMapper().writeValueAsString(actual))
+        println(Plinko.objectMapper.writeValueAsString(diff))
+        println(Plinko.objectMapper.writeValueAsString(actual))
         Assert.assertEquals(after, actual)
 
     }

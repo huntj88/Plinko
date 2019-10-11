@@ -16,7 +16,10 @@ import java.time.OffsetDateTime
 typealias DocumentId = Long
 typealias CollectionId = Long
 
-class DocumentAndCollectionDB(private val queries: DocumentsAndCollectionsQueries) {
+class DocumentAndCollectionDB(
+    private val queries: DocumentsAndCollectionsQueries,
+    private val objectMapper: ObjectMapper
+) {
 
     fun addCollection(parentDocument: DocumentId, name: String) {
         queries.addCollection(
@@ -63,8 +66,6 @@ class DocumentAndCollectionDB(private val queries: DocumentsAndCollectionsQuerie
             ids
         ).executeAsList()
     }
-
-    private val objectMapper = ObjectMapper()
 
     fun getDocumentCommits(documentId: DocumentId): List<Commit> {
         return queries.selectCommits(documentId).executeAsList().map {

@@ -3,14 +3,15 @@ package me.jameshunt.plinko
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import me.jameshunt.plinko.merkle.*
+import me.jameshunt.plinko.store.Plinko
 import org.junit.Assert
 import org.junit.Test
 
-fun String.toDiffJson(): DiffParser.ValueInfo = ObjectMapper()
+fun String.toDiffJson(): DiffParser.ValueInfo = Plinko.objectMapper
     .readValue<Map<String, Any>>(this, object : TypeReference<Map<String, Any>>() {})
     .let { DiffParser.parseDiff(it) }
 
-fun String.toJsonHashObject(): HashObject = ObjectMapper()
+fun String.toJsonHashObject(): HashObject = Plinko.objectMapper
     .readValue<Map<String, Any?>>(this, object : TypeReference<Map<String, Any?>>() {})
     .let { JsonParser.read(it) }
     .toHashObject()

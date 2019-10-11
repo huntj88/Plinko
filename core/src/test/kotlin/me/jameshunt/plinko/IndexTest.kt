@@ -32,7 +32,7 @@ class IndexTest {
 
         val keyHash = DigestUtils.md5Hex("index.test1")
 
-        val indexMatches = MerkleDB.docCollection.getDocumentIndex(collection.data.id, keyHash, OffsetDateTime.now())
+        val indexMatches = Plinko.merkleDB.docCollection.getDocumentIndex(collection.data.id, keyHash, OffsetDateTime.now())
 
         indexMatches
             .firstOrNull { it.key_hash == keyHash }

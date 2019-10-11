@@ -84,7 +84,7 @@ class DocumentTest {
             setData(tree4)
 
             val data = getData()
-            ObjectMapper().writeValueAsString(data).let(::println)
+            Plinko.objectMapper.writeValueAsString(data).let(::println)
             Assert.assertEquals(tree4, data)
 
             collection("childCollectionName").document("wow").run {

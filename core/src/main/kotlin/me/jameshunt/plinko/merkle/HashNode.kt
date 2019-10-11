@@ -1,6 +1,6 @@
 package me.jameshunt.plinko.merkle
 
-import me.jameshunt.plinko.store.db.MerkleDB
+import me.jameshunt.plinko.store.Plinko
 
 interface HashNode {
     val hash: String
@@ -70,7 +70,7 @@ private fun HashArray.getValueHashes(): List<String> {
     }.flatten()
 }
 
-fun HashObject.toJObject() = this.toJObject(MerkleDB.values.getJValues(this.getValueHashes()))
+fun HashObject.toJObject() = this.toJObject(Plinko.merkleDB.values.getJValues(this.getValueHashes()))
 
 internal fun HashObject.toJObject(jValues: List<JValue>): JObject {
     fun List<JValue>.valueForHash(hash: String) = this.first { it.hash == hash }

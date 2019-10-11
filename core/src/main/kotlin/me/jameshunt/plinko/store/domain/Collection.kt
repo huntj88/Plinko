@@ -2,9 +2,9 @@ package me.jameshunt.plinko.store.domain
 
 import me.jameshunt.plinko.merkle.JValue
 import me.jameshunt.plinko.merkle.ValueType
+import me.jameshunt.plinko.store.Plinko
 import me.jameshunt.plinko.store.db.CollectionId
 import me.jameshunt.plinko.store.db.DocumentId
-import me.jameshunt.plinko.store.db.MerkleDB
 import org.apache.commons.codec.digest.DigestUtils
 import java.time.OffsetDateTime
 
@@ -12,7 +12,7 @@ typealias CollectionFromDB = me.jameshunt.db.Collection
 
 class Collection(internal val data: CollectionFromDB) {
     fun document(name: String): Document {
-        val doc = MerkleDB.docCollection.getDocument(
+        val doc = Plinko.merkleDB.docCollection.getDocument(
             parentCollection = data.id,
             name = name
         )?.let { Document(it) }
@@ -23,7 +23,7 @@ class Collection(internal val data: CollectionFromDB) {
     fun setIndex(key: String) {
         assert(key.split(".").isNotEmpty())
         assert(key.matches("[a-zA-Z0-9.]+".toRegex()))
-        MerkleDB.docCollection.setIndex(data.id, key)
+        Plinko.merkleDB.docCollection.setIndex(data.id, key)
 
         // TODO: index existing docs
     }
@@ -36,7 +36,7 @@ class Collection(internal val data: CollectionFromDB) {
             .run(queryBuilder)
             .found
             .let { docIds ->
-                MerkleDB.docCollection
+                Plinko.merkleDB.docCollection
                     .getDocuments(data.id, docIds)
                     .map(::Document)
             }
@@ -44,7 +44,7 @@ class Collection(internal val data: CollectionFromDB) {
 
     private fun String.createIfDocumentDoesntExist(): Document {
         println("document with name: $this, does not exist")
-        MerkleDB.docCollection.addDocument(data.id, this)
+        Plinko.merkleDB.docCollection.addDocument(data.id, this)
         println("added document: $this")
         return document(this)
     }
@@ -53,7 +53,7 @@ class Collection(internal val data: CollectionFromDB) {
 class QueryBuilder(private val collectionId: CollectionId, private val asOfDate: OffsetDateTime) {
 
     fun whereEqualTo(key: String, value: Any?): QueryPart {
-        return MerkleDB.docCollection
+        return Plinko.merkleDB.docCollection
             .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), asOfDate)
             .filter { it.value_hash == JValue(value).hash }
             .map { it.document_id }
@@ -63,10 +63,10 @@ class QueryBuilder(private val collectionId: CollectionId, private val asOfDate:
     fun whereGreaterThan(key: String, value: Any?): QueryPart {
         val jQueryValue = JValue(value)
 
-        return MerkleDB.docCollection
+        return Plinko.merkleDB.docCollection
             .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), asOfDate)
             .let { indexes ->
-                val jValues = MerkleDB.values.getJValues(indexes.map { it.value_hash })
+                val jValues = Plinko.merkleDB.values.getJValues(indexes.map { it.value_hash })
                 indexes.map { index -> index to jValues.first { it.hash == index.value_hash } }
             }
             .filter { (_, jValue) ->
@@ -87,10 +87,10 @@ class QueryBuilder(private val collectionId: CollectionId, private val asOfDate:
     fun whereLessThan(key: String, value: Any?): QueryPart {
         val jQueryValue = JValue(value)
 
-        return MerkleDB.docCollection
+        return Plinko.merkleDB.docCollection
             .getDocumentIndex(collectionId, DigestUtils.md5Hex(key), asOfDate)
             .let { indexes ->
-                val jValues = MerkleDB.values.getJValues(indexes.map { it.value_hash })
+                val jValues = Plinko.merkleDB.values.getJValues(indexes.map { it.value_hash })
                 indexes.map { index -> index to jValues.first { it.hash == index.value_hash } }
             }
             .filter { (_, jValue) ->

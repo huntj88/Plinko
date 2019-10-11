@@ -5,6 +5,7 @@ import me.jameshunt.plinko.merkle.DiffCommit
 import me.jameshunt.plinko.merkle.DiffGenerator
 import me.jameshunt.plinko.merkle.DiffParser
 import me.jameshunt.plinko.merkle.DiffRevert
+import me.jameshunt.plinko.store.Plinko
 import org.junit.Assert
 import org.junit.Test
 
@@ -486,8 +487,8 @@ class DiffRevertTest {
 
         val actual = DiffRevert.revert(after, diff)
 
-        println(ObjectMapper().writeValueAsString(diff))
-        println(ObjectMapper().writeValueAsString(actual))
+        println(Plinko.objectMapper.writeValueAsString(diff))
+        println(Plinko.objectMapper.writeValueAsString(actual))
         Assert.assertEquals(before, actual)
 
     }
@@ -520,8 +521,8 @@ class DiffRevertTest {
 
         val actual = DiffRevert.revert(after, diff)
 
-        println(ObjectMapper().writeValueAsString(diff))
-        println(ObjectMapper().writeValueAsString(actual))
+        println(Plinko.objectMapper.writeValueAsString(diff))
+        println(Plinko.objectMapper.writeValueAsString(actual))
         Assert.assertEquals(before, actual)
     }
 }

@@ -1,7 +1,7 @@
 package me.jameshunt.plinko.client
 
 import me.jameshunt.plinko.merkle.DiffParser
-import me.jameshunt.plinko.store.db.MerkleDB
+import me.jameshunt.plinko.store.Plinko
 import me.jameshunt.plinko.store.domain.Commit
 import me.jameshunt.plinko.store.domain.format
 
@@ -14,7 +14,7 @@ object DiffTransportFormatter {
             "diff" to commit.diff,
             "values" to DiffParser.parseDiff(commit.diff)
                 .getValueHashes()
-                .let(MerkleDB.values::getJValues)
+                .let(Plinko::getJValues)
                 .map { it.hash to it.value }
                 .toMap()
         )
@@ -69,7 +69,7 @@ object DiffTransportFormatter {
     }
 
     private fun DiffParser.KeyInfo.hashValue(): List<String> {
-        return when(this) {
+        return when (this) {
             is DiffParser.KeyInfo.KeySame -> emptyList()
             is DiffParser.KeyInfo.KeyChanged -> listOf(to)
         }

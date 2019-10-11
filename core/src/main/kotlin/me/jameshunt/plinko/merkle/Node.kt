@@ -9,7 +9,7 @@ val emptyArray: String = JArray(listOf()).hash
 interface Node {
     val hash: String
 }
-// todo: bake the previous commit hash into the top level object hash. guarantees applying correct diff, and that it will work.
+
 data class JObject(val keyValues: Map<JValue, Node>) : Node {
     override val hash: String = keyValues
         .map { (key, node) -> key.hash + node.hash }

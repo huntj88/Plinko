@@ -3,10 +3,11 @@ package me.jameshunt.plinko.store.db
 import com.squareup.sqldelight.db.SqlDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver
 import com.squareup.sqldelight.sqlite.driver.JdbcSqliteDriver.Companion.IN_MEMORY
+import me.jameshunt.plinko.store.Plinko
 import me.jameshunt.sqldelight.MerkleDatabase
 import java.nio.ByteBuffer
 
-object MerkleDB {
+internal class MerkleDB {
     private val driver: SqlDriver = JdbcSqliteDriver(IN_MEMORY).apply {
         MerkleDatabase.Schema.create(this)
     }
@@ -14,7 +15,7 @@ object MerkleDB {
     private val db = MerkleDatabase(driver)
 
     val values = ValuesDB(db.valuesQueries)
-    val docCollection = DocumentAndCollectionDB(db.documentsAndCollectionsQueries)
+    val docCollection = DocumentAndCollectionDB(db.documentsAndCollectionsQueries, Plinko.objectMapper)
 }
 
 fun Boolean.toByteArray(): ByteArray = when (this) {

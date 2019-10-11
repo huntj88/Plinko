@@ -3,9 +3,10 @@ package me.jameshunt.plinko
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import me.jameshunt.plinko.merkle.JsonParser
+import me.jameshunt.plinko.store.Plinko
 import java.io.File
 
-fun String.toJson(): Map<String, Any?> = ObjectMapper()
+fun String.toJson(): Map<String, Any?> = Plinko.objectMapper
     .readValue<Map<String, Any?>>(this, object : TypeReference<Map<String, Any?>>() {})
 
 val tree1 by lazy {

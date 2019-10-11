@@ -1,5 +1,7 @@
 package me.jameshunt.plinko.store
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import me.jameshunt.plinko.merkle.JValue
 import me.jameshunt.plinko.store.db.MerkleDB
 import me.jameshunt.plinko.store.domain.Collection
 import me.jameshunt.plinko.store.domain.Document
@@ -7,11 +9,14 @@ import me.jameshunt.plinko.store.domain.DocumentFromDB
 
 object Plinko {
 
+    internal val objectMapper = ObjectMapper()
+    internal val merkleDB = MerkleDB()
+
     // root doc to bootstrap access
     private val rootDoc = Document(object : DocumentFromDB {
         init {
             // TODO: only if first run
-            MerkleDB.docCollection.addDocument(
+            merkleDB.docCollection.addDocument(
                 parentCollection = 0,
                 name = "rootDocument"
             )
@@ -29,4 +34,6 @@ object Plinko {
     fun collection(name: String): Collection {
         return rootDoc.collection(name)
     }
+
+    fun getJValues(md5s: List<String>): List<JValue> = merkleDB.values.getJValues(md5s)
 }

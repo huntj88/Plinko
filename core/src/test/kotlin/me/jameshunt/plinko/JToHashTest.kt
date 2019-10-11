@@ -3,6 +3,7 @@ package me.jameshunt.plinko
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import me.jameshunt.plinko.merkle.toHashObject
+import me.jameshunt.plinko.store.Plinko
 import org.junit.Assert
 import org.junit.Test
 
@@ -12,16 +13,16 @@ class JToHashTest {
     fun `print hash object as json`() {
        tree3
            .toHashObject()
-           .let { ObjectMapper().writeValueAsString(it) }
+           .let { Plinko.objectMapper.writeValueAsString(it) }
            .let(::println)
     }
 
     @Test
     fun `test JObject to HashObject`() {
 
-        val hashObject = tree9.toHashObject().let { ObjectMapper().writeValueAsString(it) }.also { println(it) }.let {
+        val hashObject = tree9.toHashObject().let { Plinko.objectMapper.writeValueAsString(it) }.also { println(it) }.let {
             val type = object : TypeReference<Map<String, Any>>() {}
-            ObjectMapper().readValue<Map<String, Any>>(it, type)
+            Plinko.objectMapper.readValue<Map<String, Any>>(it, type)
         }
 
         val expected = """
@@ -81,7 +82,7 @@ class JToHashTest {
         }           
         """.trimIndent().let {
             val type = object : TypeReference<Map<String, Any>>() {}
-            ObjectMapper().readValue<Map<String, Any>>(it, type)
+            Plinko.objectMapper.readValue<Map<String, Any>>(it, type)
         }
 
         Assert.assertEquals(expected, hashObject)

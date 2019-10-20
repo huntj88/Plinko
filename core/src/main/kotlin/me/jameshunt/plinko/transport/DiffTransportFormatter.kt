@@ -8,7 +8,9 @@ import me.jameshunt.plinko.store.domain.format
 
 object DiffTransportFormatter {
 
-    fun format(commit: Commit): Map<String, Any?> {
+    fun format(commits: List<Commit>): List<Map<String, Any?>> = commits.map { format(it) }
+
+    internal fun format(commit: Commit): Map<String, Any?> {
         return mapOf(
             "documentId" to commit.documentId,
             "createdAt" to commit.createdAt.format(),

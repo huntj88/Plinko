@@ -9,9 +9,9 @@ import me.jameshunt.plinko.store.domain.Commit
 object PlinkoClient {
     private val objectMapper = ObjectMapper()
 
-    suspend fun sendCommit(commit: Commit) {
+    suspend fun sendCommits(commits: List<Commit>) {
 
-        val json = DiffTransportFormatter.format(commit).let(objectMapper::writeValueAsString)
+        val json = DiffTransportFormatter.format(commits).let(objectMapper::writeValueAsString)
 
         val client = HttpClient()
 

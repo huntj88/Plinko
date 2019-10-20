@@ -68,6 +68,16 @@ class DocumentAndCollectionDB(
         ).executeAsList()
     }
 
+    fun getIncludedDocumentCommits(documentId: DocumentId): List<Commit> {
+        val existingHashes = queries
+            .selectDocumentById(documentId)
+            .executeAsOne()
+            .included_commit_hashes
+            .split(",")
+
+        return getDocumentCommits(documentId).filter { existingHashes.contains(it.diff.commitHash()) }
+    }
+
     fun getDocumentCommits(documentId: DocumentId): List<Commit> {
         return queries.selectCommits(documentId).executeAsList().map {
             Commit(
@@ -79,9 +89,7 @@ class DocumentAndCollectionDB(
     }
 
     fun commitDiff(documentId: DocumentId, diff: Map<String, Any>) {
-        val newCommitHash = diff["hash"]
-            .let { it as Map<String, String> }
-            .let { it["to"]!! }
+        val newCommitHash = diff.commitHash()
 
         queries.transaction {
             val existingHashes = queries
@@ -122,4 +130,8 @@ class DocumentAndCollectionDB(
         val type = object : TypeReference<Map<String, Any>>() {}
         return objectMapper.readValue(this, type)
     }
+
+    private fun Map<String, Any>.commitHash(): String = this["hash"]
+        .let { it as Map<String, String> }
+        .let { it["to"]!! }
 }

@@ -13,7 +13,7 @@ class Document(internal val data: DocumentFromDB) {
     //TODO: can be optimized so its not recomputed every time?
     private fun hashTree(asOfDate: OffsetDateTime): HashObject {
         val commits = Plinko.merkleDB.docCollection
-            .getDocumentCommits(data.id)
+            .getIncludedDocumentCommits(data.id)
             .filter { it.createdAt.toInstant() <= asOfDate.toInstant() }
             .map { DiffParser.parseDiff(it.diff) as DiffParser.ValueInfo.Object }
 

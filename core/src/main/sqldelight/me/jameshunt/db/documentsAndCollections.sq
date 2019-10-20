@@ -18,15 +18,17 @@ CREATE TABLE document (
   id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
   parent_collection_id INTEGER NOT NULL,
   document_name TEXT NOT NULL,
-  created_at TEXT NOT NULL
+  created_at TEXT NOT NULL,
+  included_commit_hashes TEXT NOT NULL
 --   UNIQUE(parent_collection_id, document_name) -- enforced by logic
 );
 
 CREATE TABLE document_commit (
   document_id INTEGER NOT NULL,
+  hash TEXT NOT NULL,
   diff TEXT NOT NULL,
   created_at TEXT NOT NULL,
-  PRIMARY KEY(document_id, created_at)
+  PRIMARY KEY(document_id, created_at, hash)
 );
 
 -- store which fields to index in parent collection, and use same indexing strategy for all child docs
@@ -54,8 +56,11 @@ SELECT collection_id, key_hash, MAX(created_at) AS created_at, key FROM collecti
 
 
 addDocument:
-INSERT INTO document(parent_collection_id, document_name, created_at)
-VALUES (?, ?, ?);
+INSERT INTO document(parent_collection_id, document_name, created_at, included_commit_hashes)
+VALUES (?, ?, ?, ?);
+
+selectDocumentById:
+SELECT * FROM document WHERE id = ?;
 
 selectDocument:
 SELECT * FROM document WHERE parent_collection_id = ? AND document_name = ?;
@@ -64,8 +69,11 @@ selectDocuments:
 SELECT * FROM document WHERE parent_collection_id = ? AND id IN ?;
 
 commitDiff:
-INSERT INTO document_commit(document_id, created_at, diff)
-VALUES (?, ?, ?);
+INSERT INTO document_commit(document_id, hash, created_at, diff)
+VALUES (?, ?, ?, ?);
+
+updateIncludedCommits:
+UPDATE document SET included_commit_hashes = ? WHERE id = ?;
 
 selectCommits:
 SELECT * FROM document_commit WHERE document_id = ? ORDER BY created_at ASC;

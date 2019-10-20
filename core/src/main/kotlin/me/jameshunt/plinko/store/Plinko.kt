@@ -29,6 +29,8 @@ object Plinko {
             get() = throw IllegalStateException()
         override val created_at: String
             get() = throw IllegalStateException()
+        override val included_commit_hashes: String
+            get() = throw IllegalStateException()
     })
 
     fun collection(name: String): Collection {

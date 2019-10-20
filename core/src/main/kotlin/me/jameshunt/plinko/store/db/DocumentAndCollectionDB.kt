@@ -49,7 +49,8 @@ class DocumentAndCollectionDB(
         queries.addDocument(
             parent_collection_id = parentCollection,
             document_name = name,
-            created_at = now
+            created_at = now,
+            included_commit_hashes = ""
         )
     }
 
@@ -78,11 +79,29 @@ class DocumentAndCollectionDB(
     }
 
     fun commitDiff(documentId: DocumentId, diff: Map<String, Any>) {
-        queries.commitDiff(
-            document_id = documentId,
-            created_at = now,
-            diff = objectMapper.writeValueAsString(diff)
-        )
+        val newCommitHash = diff["hash"]
+            .let { it as Map<String, String> }
+            .let { it["to"]!! }
+
+        queries.transaction {
+            val existingHashes = queries
+                .selectDocumentById(documentId)
+                .executeAsOne()
+                .included_commit_hashes
+
+            val newIncludedHashes = when(existingHashes.isEmpty()) {
+                true -> newCommitHash
+                false -> "$existingHashes,$newCommitHash"
+            }
+
+            queries.updateIncludedCommits(newIncludedHashes, documentId)
+            queries.commitDiff(
+                document_id = documentId,
+                hash = newCommitHash,
+                created_at = now,
+                diff = objectMapper.writeValueAsString(diff)
+            )
+        }
     }
 
     fun addDocumentIndex(documentId: DocumentId, keyHash: String, valueHash: String) {

@@ -28,7 +28,7 @@ object DiffCherryPick {
                 DiffCommit.commit(partialDocument, nextDiff) as HashObject
             }
 
-        applyRemainingCommitsOrderedByDate(
+        val newMasterBranchCommits = mergeHistoryOrderedByDate(
             sharedHistory = sharedHistory,
             mergedHistory = sharedHistory,
             existingCommits = existingCommits,
@@ -38,26 +38,54 @@ object DiffCherryPick {
         )
     }
 
-    private fun applyRemainingCommitsOrderedByDate(
+    private tailrec fun mergeHistoryOrderedByDate(
         sharedHistory: HashObject,
         mergedHistory: HashObject,
         existingCommits: List<Commit>,
         remainingExisting: List<Commit>,
         newCommits: List<Commit>,
         remainingNew: List<Commit>
-    ): HashObject {
+    ): List<Commit> {
         val nextCommit = (remainingExisting + remainingNew).minBy { it.createdAt }!!
-        val mergedHistoryAfterCommit = when (mergedHistory.hash == nextCommit.diff.fromCommitHash()) {
+        val nextFromCommitHash = nextCommit.diff.fromCommitHash()
+        val mergedHistoryAfterCommit = when (mergedHistory.hash == nextFromCommitHash) {
             true -> DiffCommit.commit(sharedHistory, DiffParser.parseDiff(nextCommit.diff)) as HashObject
             false -> {
                 // TODO apply next commit
 
+                val alreadyAppliedExistingCommits = (existingCommits - remainingExisting)
+                val docForExisting = alreadyAppliedExistingCommits.fold(sharedHistory) { partialDoc, c ->
+                    DiffCommit.commit(partialDoc, c.diff.let(DiffParser::parseDiff)) as HashObject
+                }
+
+                val alreadyAppliedNewCommits = (newCommits - remainingNew)
+                val docForNew = alreadyAppliedNewCommits.fold(sharedHistory) { partialDoc, c ->
+                    DiffCommit.commit(partialDoc, c.diff.let(DiffParser::parseDiff)) as HashObject
+                }
+
+                when (nextFromCommitHash) {
+                    docForExisting.hash -> TODO() // go from
+                    docForNew.hash -> TODO()
+                    else -> throw IllegalStateException()
+                }
+
+                // trace hash changes from next commit to sharedHistory hash, and up the other branch
+
+                // create a copy of mergedHistory HashObject, and then manipulate it with the correct
+                // hashes for what the document should look like after the commit is applied, the newMergedHistory.
+                // yay hashing stuff
+
+                // take a diff of mergedHistory -> newMergedHistory, create commit
+
+                // next commit
+
+                nextCommit
 
                 TODO()
             }
         }
 
-        return applyRemainingCommitsOrderedByDate(
+        return mergeHistoryOrderedByDate(
             sharedHistory = sharedHistory,
             mergedHistory = mergedHistoryAfterCommit,
             existingCommits = existingCommits,

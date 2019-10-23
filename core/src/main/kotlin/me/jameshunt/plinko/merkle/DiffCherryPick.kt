@@ -34,7 +34,8 @@ object DiffCherryPick {
             existingCommits = existingCommits,
             remainingExisting = existingCommits,
             newCommits = newCommits,
-            remainingNew = newCommits
+            remainingNew = newCommits,
+            mergedCommits = emptyList()
         )
     }
 
@@ -44,10 +45,12 @@ object DiffCherryPick {
         existingCommits: List<Commit>,
         remainingExisting: List<Commit>,
         newCommits: List<Commit>,
-        remainingNew: List<Commit>
+        remainingNew: List<Commit>,
+        mergedCommits: List<Commit>
     ): List<Commit> {
         val nextCommit = (remainingExisting + remainingNew).minBy { it.createdAt }!!
         val nextFromCommitHash = nextCommit.diff.fromCommitHash()
+
         val mergedHistoryAfterCommit = when (mergedHistory.hash == nextFromCommitHash) {
             true -> DiffCommit.commit(sharedHistory, DiffParser.parseDiff(nextCommit.diff)) as HashObject
             false -> {
@@ -64,7 +67,9 @@ object DiffCherryPick {
                 }
 
                 when (nextFromCommitHash) {
-                    docForExisting.hash -> TODO() // go from
+                    docForExisting.hash -> {
+
+                    }
                     docForNew.hash -> TODO()
                     else -> throw IllegalStateException()
                 }
@@ -79,11 +84,15 @@ object DiffCherryPick {
 
                 // next commit
 
-                nextCommit
-
                 TODO()
             }
         }
+
+        val mergeCommit = Commit(
+            documentId = nextCommit.documentId,
+            createdAt = nextCommit.createdAt,
+            diff = DiffGenerator.getDiff(mergedHistory, mergedHistoryAfterCommit)
+        )
 
         return mergeHistoryOrderedByDate(
             sharedHistory = sharedHistory,
@@ -91,7 +100,8 @@ object DiffCherryPick {
             existingCommits = existingCommits,
             remainingExisting = remainingExisting - nextCommit,
             newCommits = newCommits,
-            remainingNew = remainingNew - nextCommit
+            remainingNew = remainingNew - nextCommit,
+            mergedCommits = mergedCommits + mergeCommit
         )
     }
 

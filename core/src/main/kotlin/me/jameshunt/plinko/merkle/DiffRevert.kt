@@ -9,6 +9,7 @@ object DiffRevert {
             is DiffParser.ValueInfo.Object -> {
                 //if no diff then just return the original hashObject
                 if (diff.from == hashObject.hash) return hashObject
+                if (diff.to != hashObject.hash) throw IllegalStateException("cannot revert commit")
 
                 val keysToCheckIfChildChanged = diff.children
                     .map { it.key }

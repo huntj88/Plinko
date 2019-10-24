@@ -68,7 +68,17 @@ object DiffCherryPick {
 
                 when (nextFromCommitHash) {
                     docForExisting.hash -> {
+                        val transformationsFromExistingToShared = (alreadyAppliedExistingCommits + nextCommit)
+                            .reversed()
+                            .fold(mapOf<String, Any>()) { acc, nextMostRecent ->
+                                val fromCommitHash = nextMostRecent.diff.fromCommitHash()
+                                val toCommitHash = nextMostRecent.diff.commitHash()
 
+                                println("from: $fromCommitHash, to: $toCommitHash")
+                                acc + (fromCommitHash to toCommitHash)
+                            }
+
+//                        val transformationsUpMergeBranch = mergedCommits.fold()
                     }
                     docForNew.hash -> TODO()
                     else -> throw IllegalStateException()

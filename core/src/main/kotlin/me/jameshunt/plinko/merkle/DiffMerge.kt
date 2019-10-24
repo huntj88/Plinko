@@ -12,13 +12,13 @@ object DiffMerge {
         // apply new commits at common ancestor
         // cherry-pick over commits newer than common ancestor from master to new branch
 
-        val commonAncestorHash = newCommits.first().diff.fromCommitHash()
+        val commonAncestorHash = newCommits.first().diff.commitHashFrom()
 
         val docId = newCommits.first().documentId
         val masterCommits = Plinko.merkleDB.docCollection.getIncludedDocumentCommits(documentId = docId)
 
         val existingCommits = masterCommits.takeLastWhile {
-            it.diff.commitHash() != commonAncestorHash
+            it.diff.commitHashTo() != commonAncestorHash
         }
         existingCommits.forEach(::println)
 
@@ -47,9 +47,9 @@ object DiffMerge {
         mergedCommits: List<Commit>
     ): List<Commit> {
         val nextCommit = (remainingExisting + remainingNew).minBy { it.createdAt }!!
-        val nextFromCommitHash = nextCommit.diff.fromCommitHash()
+        val nextFromCommitHash = nextCommit.diff.commitHashFrom()
 
-        val mergedHistoryHash = mergedCommits.lastOrNull()?.diff?.commitHash() ?: sharedHistory.hash
+        val mergedHistoryHash = mergedCommits.lastOrNull()?.diff?.commitHashTo() ?: sharedHistory.hash
 
         val newMergeCommit = when (mergedHistoryHash == nextFromCommitHash) {
             true -> nextCommit
@@ -70,12 +70,12 @@ object DiffMerge {
                     docForExisting.hash -> {
                         val transformationsFromExistingToShared = (alreadyAppliedExistingCommits + nextCommit).map {
                             println(it.diff)
-                            Transformation(from = it.diff.fromCommitHash(), to = it.diff.commitHash())
+                            Transformation(from = it.diff.commitHashFrom(), to = it.diff.commitHashTo())
                         }
 
                         val transformationsUpMergeBranch = mergedCommits.map {
                             println(it.diff)
-                            Transformation(from = it.diff.fromCommitHash(), to = it.diff.commitHash())
+                            Transformation(from = it.diff.commitHashFrom(), to = it.diff.commitHashTo())
                         }
 
                         transformationsFromExistingToShared.forEach(::println)
@@ -137,11 +137,11 @@ object DiffMerge {
         )
     }
 
-    private fun Map<String, Any>.commitHash(): String = this["hash"]
+    private fun Map<String, Any>.commitHashTo(): String = this["hash"]
         .let { it as Map<String, String> }
         .let { it["to"]!! }
 
-    private fun Map<String, Any>.fromCommitHash(): String = this["hash"]
+    private fun Map<String, Any>.commitHashFrom(): String = this["hash"]
         .let { it as Map<String, String> }
         .let { it["from"]!! }
 

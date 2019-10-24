@@ -207,6 +207,6 @@ class DiffCherryPickTest {
         document.setData(mapOf("cool" to true, "wow" to null))
 
         val docId = document.data.id
-        DiffCherryPick.cherryPickFromMaster(listOf(commit2ButSyncAfter3))
+        val mergedCommits = DiffCherryPick.cherryPickFromMaster(listOf(commit2ButSyncAfter3))
     }
 }

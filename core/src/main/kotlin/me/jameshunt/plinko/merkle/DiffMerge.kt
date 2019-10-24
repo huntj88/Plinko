@@ -3,9 +3,9 @@ package me.jameshunt.plinko.merkle
 import me.jameshunt.plinko.store.Plinko
 import me.jameshunt.plinko.store.domain.Commit
 
-object DiffCherryPick {
+object DiffMerge {
 
-    fun cherryPickFromMaster(newCommits: List<Commit>): List<Commit> {
+    fun mergeMasterWith(newCommits: List<Commit>): List<Commit> {
         // new commits could be interwoven with existing commits
 
 
@@ -104,7 +104,7 @@ object DiffCherryPick {
         }
 
         if (((remainingExisting + remainingNew) - nextCommit).isEmpty()) {
-            return mergedCommits
+            return newMergeCommit?.let { mergedCommits + it } ?: mergedCommits
         }
 
         return mergeHistoryOrderedByDate(
@@ -127,8 +127,8 @@ object DiffCherryPick {
         // need to recursively check child collections for hash changes too
 
         val newHash = mapOf(
-            "from" to transformationsUpMergeBranch.last().from,
-            "to" to transformationsUpMergeBranch.last().to
+            "from" to transformationsUpMergeBranch.last().to,
+            "to" to "temp" //TODO
         )
         return nextCommit.copy(
             diff = nextCommit.diff

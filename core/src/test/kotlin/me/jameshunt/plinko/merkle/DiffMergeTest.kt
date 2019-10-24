@@ -7,7 +7,7 @@ import org.junit.Test
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 
-class DiffCherryPickTest {
+class DiffMergeTest {
 
     @Test
     fun testCherryPick() {
@@ -207,6 +207,13 @@ class DiffCherryPickTest {
         document.setData(mapOf("cool" to true, "wow" to null))
 
         val docId = document.data.id
-        val mergedCommits = DiffCherryPick.cherryPickFromMaster(listOf(commit2ButSyncAfter3))
+        val mergedCommits = DiffMerge.mergeMasterWith(newCommits = listOf(commit2ButSyncAfter3))
+
+        mergedCommits.fold(JsonParser.read(mapOf("cool" to true)).toHashObject()) {acc, c ->
+            println("merged: $c")
+            DiffCommit.commit(acc, DiffParser.parseDiff(c.diff)) as HashObject
+        }.let {
+            println(it)
+        }
     }
 }

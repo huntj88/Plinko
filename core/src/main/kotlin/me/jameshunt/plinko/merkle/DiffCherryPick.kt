@@ -69,16 +69,16 @@ object DiffCherryPick {
                 when (nextFromCommitHash) {
                     docForExisting.hash -> {
                         val transformationsFromExistingToShared = (alreadyAppliedExistingCommits + nextCommit)
-                            .reversed()
-                            .fold(mapOf<String, Any>()) { acc, nextMostRecent ->
-                                val fromCommitHash = nextMostRecent.diff.fromCommitHash()
-                                val toCommitHash = nextMostRecent.diff.commitHash()
+                            .map { Transformation(from = it.diff.fromCommitHash(), to = it.diff.commitHash()) }
 
-                                println("from: $fromCommitHash, to: $toCommitHash")
-                                acc + (fromCommitHash to toCommitHash)
-                            }
+                        val transformationsUpMergeBranch = mergedCommits.map {
+                            Transformation(from = it.diff.fromCommitHash(), to = it.diff.commitHash())
+                        }
 
-//                        val transformationsUpMergeBranch = mergedCommits.fold()
+                        transformationsFromExistingToShared.forEach(::println)
+                        transformationsUpMergeBranch.forEach(::println)
+
+
                     }
                     docForNew.hash -> TODO()
                     else -> throw IllegalStateException()
@@ -122,4 +122,9 @@ object DiffCherryPick {
     private fun Map<String, Any>.fromCommitHash(): String = this["hash"]
         .let { it as Map<String, String> }
         .let { it["from"]!! }
+
+    data class Transformation(
+        val from: String,
+        val to: String
+    )
 }

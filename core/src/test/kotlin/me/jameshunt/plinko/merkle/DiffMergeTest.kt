@@ -1,6 +1,7 @@
 package me.jameshunt.plinko.merkle
 
 import me.jameshunt.plinko.store.domain.Commit
+import org.junit.Assert
 import org.junit.Test
 import java.time.OffsetDateTime
 
@@ -35,11 +36,18 @@ class DiffMergeTest {
             )
         )
 
-        val masterCommits = listOf(commit1, commit3)
-
-        val mergedCommits = DiffMerge.mergeMasterWith(
-            masterCommits = masterCommits,
+        val newMasterCommits = DiffMerge.mergeMasterWith(
+            masterCommits = listOf(commit1, commit3),
             newCommits = listOf(commit2ButSyncAfter3)
-        ).forEach(::println)
+        )
+
+        val initialDocument = HashObject(nullValue, emptyMap())
+        val newMasterBranch = newMasterCommits.fold(initialDocument) { partialDocument, c ->
+            DiffCommit.commit(partialDocument, DiffParser.parseDiff(c.diff)) as HashObject
+        }
+
+        val expected = JsonParser.read(mapOf("wow" to null)).toHashObject()
+
+        Assert.assertEquals(expected, newMasterBranch)
     }
 }

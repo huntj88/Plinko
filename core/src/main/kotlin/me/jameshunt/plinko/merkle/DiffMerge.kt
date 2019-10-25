@@ -18,13 +18,14 @@ object DiffMerge {
         }
         existingCommits.forEach(::println)
 
-        val sharedHistory = (masterCommits - existingCommits)
+        val sharedCommits = masterCommits - existingCommits
+        val sharedHistory = sharedCommits
             .map { DiffParser.parseDiff(it.diff) }
             .fold(HashObject(nullValue, emptyMap())) { partialDocument, nextDiff ->
                 DiffCommit.commit(partialDocument, nextDiff) as HashObject
             }
 
-        return mergeHistoryOrderedByDate(
+        return sharedCommits + mergeHistoryOrderedByDate(
             sharedHistory = sharedHistory,
             existingCommits = existingCommits,
             remainingExisting = existingCommits,

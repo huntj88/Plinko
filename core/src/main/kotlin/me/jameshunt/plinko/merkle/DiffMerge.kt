@@ -5,12 +5,6 @@ import me.jameshunt.plinko.store.domain.Commit
 object DiffMerge {
 
     fun mergeMasterWith(masterCommits: List<Commit>, newCommits: List<Commit>): List<Commit> {
-        // new commits could be interwoven with existing commits
-
-
-        // apply new commits at common ancestor
-        // cherry-pick over commits newer than common ancestor from master to new branch
-
         val commonAncestorHash = newCommits.first().diff.commitHashFrom()
 
         val existingCommits = masterCommits.takeLastWhile {
@@ -56,8 +50,6 @@ object DiffMerge {
         val newMergeCommit = when (mergedHistoryHash == nextFromCommitHash) {
             true -> nextCommit
             false -> {
-                // TODO apply next commit
-
                 val alreadyAppliedExistingCommits = (existingCommits - remainingExisting)
                 val docForExisting = alreadyAppliedExistingCommits.fold(sharedHistory) { partialDoc, c ->
                     DiffCommit.commit(partialDoc, c.diff.let(DiffParser::parseDiff)) as HashObject
@@ -97,16 +89,6 @@ object DiffMerge {
                     docForNew.hash -> TODO()
                     else -> throw IllegalStateException()
                 }
-
-                // trace hash changes from next commit to sharedHistory hash, and up the other branch
-
-                // create a copy of mergedHistory HashObject, and then manipulate it with the correct
-                // hashes for what the document should look like after the commit is applied, the newMergedHistory.
-                // yay hashing stuff
-
-                // take a diff of mergedHistory -> newMergedHistory, create commit
-
-                // next commit
             }
         }
 

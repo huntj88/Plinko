@@ -12,8 +12,13 @@ interface Node {
 
 data class JObject(val keyValues: Map<JValue, Node>) : Node {
     override val hash: String = keyValues
-        .map { (key, node) -> key.hash + node.hash }
-        .joinToString()
+        .map { it.key.hash to it.value.hash }
+        .toMap()
+        .hashForObjectType()
+}
+
+fun Map<String, String>.hashForObjectType(): String {
+    return this.map { it.key + it.value }.joinToString()
         .let { "${it}object" }
         .let(DigestUtils::md5Hex)
 }

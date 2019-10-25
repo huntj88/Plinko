@@ -1,11 +1,10 @@
 package me.jameshunt.plinko.merkle
 
-import me.jameshunt.plinko.store.Plinko
 import me.jameshunt.plinko.store.domain.Commit
 
 object DiffMerge {
 
-    fun mergeMasterWith(newCommits: List<Commit>): List<Commit> {
+    fun mergeMasterWith(masterCommits: List<Commit>, newCommits: List<Commit>): List<Commit> {
         // new commits could be interwoven with existing commits
 
 
@@ -13,9 +12,6 @@ object DiffMerge {
         // cherry-pick over commits newer than common ancestor from master to new branch
 
         val commonAncestorHash = newCommits.first().diff.commitHashFrom()
-
-        val docId = newCommits.first().documentId
-        val masterCommits = Plinko.merkleDB.docCollection.getIncludedDocumentCommits(documentId = docId)
 
         val existingCommits = masterCommits.takeLastWhile {
             it.diff.commitHashTo() != commonAncestorHash
@@ -38,18 +34,23 @@ object DiffMerge {
         )
     }
 
+    data class MergedAndOriginal(
+        val merged: Commit,
+        val original: Commit
+    )
+
     private tailrec fun mergeHistoryOrderedByDate(
         sharedHistory: HashObject,
         existingCommits: List<Commit>,
         remainingExisting: List<Commit>,
         newCommits: List<Commit>,
         remainingNew: List<Commit>,
-        mergedCommits: List<Commit>
+        mergedCommits: List<MergedAndOriginal>
     ): List<Commit> {
         val nextCommit = (remainingExisting + remainingNew).minBy { it.createdAt }!!
         val nextFromCommitHash = nextCommit.diff.commitHashFrom()
 
-        val mergedHistoryHash = mergedCommits.lastOrNull()?.diff?.commitHashTo() ?: sharedHistory.hash
+        val mergedHistoryHash = mergedCommits.lastOrNull()?.merged?.diff?.commitHashTo() ?: sharedHistory.hash
 
         val newMergeCommit = when (mergedHistoryHash == nextFromCommitHash) {
             true -> nextCommit
@@ -74,14 +75,19 @@ object DiffMerge {
                         }
 
                         val transformationsUpMergeBranch = mergedCommits.map {
-                            println(it.diff)
-                            Transformation(from = it.diff.commitHashFrom(), to = it.diff.commitHashTo())
+                            println(it.merged.diff)
+                            Transformation(from = it.merged.diff.commitHashFrom(), to = it.merged.diff.commitHashTo())
                         }
 
                         transformationsFromExistingToShared.forEach(::println)
                         transformationsUpMergeBranch.forEach(::println)
 
-                        createNewDiffFromTransformations(
+                        createNewCommitFromTransformations(
+                            mergedBranch = mergedCommits
+                                .map { it.merged }
+                                .fold(sharedHistory) { partialDoc, c ->
+                                    DiffCommit.commit(partialDoc, DiffParser.parseDiff(c.diff)) as HashObject
+                                },
                             nextCommit = nextCommit,
                             transformationsFromExistingToShared = transformationsFromExistingToShared,
                             transformationsUpMergeBranch = transformationsUpMergeBranch
@@ -104,7 +110,8 @@ object DiffMerge {
         }
 
         if (((remainingExisting + remainingNew) - nextCommit).isEmpty()) {
-            return newMergeCommit?.let { mergedCommits + it } ?: mergedCommits
+            val existingMerged = mergedCommits.map { it.merged }
+            return newMergeCommit?.let { existingMerged + it } ?: existingMerged
         }
 
         return mergeHistoryOrderedByDate(
@@ -113,13 +120,16 @@ object DiffMerge {
             remainingExisting = remainingExisting - nextCommit,
             newCommits = newCommits,
             remainingNew = remainingNew - nextCommit,
-            mergedCommits = newMergeCommit?.let { mergedCommits + it } ?: mergedCommits
+            mergedCommits = newMergeCommit?.let {
+                mergedCommits + MergedAndOriginal(merged = it, original = nextCommit)
+            } ?: mergedCommits
         )
     }
 
     //TODO: does not work with child collections
     // for existing to merge
-    private fun createNewDiffFromTransformations(
+    private fun createNewCommitFromTransformations(
+        mergedBranch: HashObject,
         nextCommit: Commit,
         transformationsFromExistingToShared: List<Transformation>,
         transformationsUpMergeBranch: List<Transformation>
@@ -130,11 +140,16 @@ object DiffMerge {
             "from" to transformationsUpMergeBranch.last().to,
             "to" to "temp" //TODO
         )
-        return nextCommit.copy(
-            diff = nextCommit.diff
-                .toMutableMap()
-                .apply { this["hash"] = newHash }
-        )
+
+        val tempDiff = nextCommit.diff
+            .toMutableMap()
+            .apply { this["hash"] = newHash }
+
+        val newMergedBranchWrongHashes = DiffCommit.commit(mergedBranch, DiffParser.parseDiff(tempDiff)) as HashObject
+        val newMergedBranch = newMergedBranchWrongHashes.rehashFromValues()
+        val newDiff = DiffGenerator.getDiff(mergedBranch, newMergedBranch)
+
+        return nextCommit.copy(diff = newDiff)
     }
 
     private fun Map<String, Any>.commitHashTo(): String = this["hash"]
@@ -150,3 +165,10 @@ object DiffMerge {
         val to: String
     )
 }
+
+
+private fun HashObject.rehashFromValues(): HashObject {
+    val correctedHash = hObject.map { it.key to it.value.hash }.toMap().hashForObjectType()
+    return copy(hash = correctedHash)
+}
+

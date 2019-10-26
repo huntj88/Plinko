@@ -42,7 +42,7 @@ object DiffMerge {
         remainingNew: List<Commit>,
         mergedCommits: List<MergedAndOriginal>
     ): List<Commit> {
-        val nextCommit = (remainingExisting + remainingNew).minBy { it.createdAt }!!
+        val nextCommit = (remainingNew + remainingExisting).minBy { it.createdAt }!!
         val nextFromCommitHash = nextCommit.diff.commitHashFrom()
 
         val mergedHistoryHash = mergedCommits.lastOrNull()?.merged?.diff?.commitHashTo() ?: sharedHistory.hash
@@ -151,6 +151,7 @@ object DiffMerge {
 
 
 private fun HashObject.rehashFromValues(): HashObject {
+    // TODO: does not go down children
     val correctedHash = hObject.map { it.key to it.value.hash }.toMap().hashForObjectType()
     return copy(hash = correctedHash)
 }

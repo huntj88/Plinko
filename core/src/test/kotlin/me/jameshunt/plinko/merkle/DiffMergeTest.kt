@@ -104,4 +104,112 @@ class DiffMergeTest {
         println(newMasterBranch)
         Assert.assertEquals(expected, newMasterBranch)
     }
+
+    @Test
+    fun `test adding to child object merge`() {
+        val commit1 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                first = HashObject(nullValue, emptyMap()),
+                second = JsonParser.read(mapOf("cool" to mapOf<String, Any>())).toHashObject()
+            )
+        )
+
+        val commit2ButSyncAfter3 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                JsonParser.read(mapOf("cool" to mapOf<String, Any>())).toHashObject(),
+                JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject()
+            )
+        )
+
+        val commit3 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                first = JsonParser.read(mapOf("cool" to mapOf<String, Any>())).toHashObject(),
+                second = JsonParser.read(mapOf("cool" to mapOf("sup" to "dog"))).toHashObject()
+            )
+        )
+
+        val newMasterCommits = DiffMerge.mergeMasterWith(
+            masterCommits = listOf(commit1, commit3).also { println(it) },
+            newCommits = listOf(commit2ButSyncAfter3).also { println(it) }
+        )
+
+        val initialDocument = HashObject(nullValue, emptyMap())
+        val newMasterBranch = newMasterCommits.fold(initialDocument) { partialDocument, c ->
+            DiffCommit.commit(partialDocument, DiffParser.parseDiff(c.diff)) as HashObject
+        }
+
+        val expected = JsonParser.read(
+            mapOf(
+                "cool" to mapOf(
+                    "hey" to "there",
+                    "sup" to "dog"
+                )
+            )
+        ).toHashObject()
+
+        println(newMasterBranch)
+        Assert.assertEquals(expected, newMasterBranch)
+    }
+
+
+    @Test
+    fun `test changing key`() {
+        val commit1 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                first = HashObject(nullValue, emptyMap()),
+                second = JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject()
+            )
+        )
+
+        val commit2ButSyncAfter3 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject(),
+                JsonParser.read(mapOf("cool" to mapOf("sup" to "there"))).toHashObject()
+            )
+        )
+
+        val commit3 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                first = JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject(),
+                second = JsonParser.read(mapOf("cool" to mapOf("hey" to "there dog"))).toHashObject()
+            )
+        )
+
+        val expected = JsonParser.read(
+            mapOf(
+                "cool" to mapOf(
+                    "sup" to "there dog"
+                )
+            )
+        ).toHashObject()
+
+        println("expected:  $expected")
+
+        val newMasterCommits = DiffMerge.mergeMasterWith(
+            masterCommits = listOf(commit1, commit3).also { println(it) },
+            newCommits = listOf(commit2ButSyncAfter3).also { println(it) }
+        )
+
+        val initialDocument = HashObject(nullValue, emptyMap())
+        val newMasterBranch = newMasterCommits.fold(initialDocument) { partialDocument, c ->
+            DiffCommit.commit(partialDocument, DiffParser.parseDiff(c.diff)) as HashObject
+        }
+
+        println(newMasterBranch)
+        Assert.assertEquals(expected, newMasterBranch)
+    }
+
+    //TODO: test for changing key in object
 }

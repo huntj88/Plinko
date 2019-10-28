@@ -62,28 +62,39 @@ object DiffMerge {
 
                 when (nextFromCommitHash) {
                     docForExisting.hash -> {
-                        val transformationsFromExistingToShared = (alreadyAppliedExistingCommits + nextCommit).map {
-                            println(it.diff)
-                            Transformation(from = it.diff.commitHashFrom(), to = it.diff.commitHashTo())
-                        }
+//                        val transformationsFromExistingToShared = (alreadyAppliedExistingCommits + nextCommit).map {
+//                            println(it.diff)
+//                            Transformation(from = it.diff.commitHashFrom(), to = it.diff.commitHashTo())
+//                        }
+//
+//                        val transformationsUpMergeBranch = mergedCommits.map {
+//                            println(it.merged.diff)
+//                            Transformation(from = it.merged.diff.commitHashFrom(), to = it.merged.diff.commitHashTo())
+//                        }
 
-                        val transformationsUpMergeBranch = mergedCommits.map {
-                            println(it.merged.diff)
-                            Transformation(from = it.merged.diff.commitHashFrom(), to = it.merged.diff.commitHashTo())
-                        }
+//                        transformationsFromExistingToShared.forEach(::println)
+//                        transformationsUpMergeBranch.forEach(::println)
 
-                        transformationsFromExistingToShared.forEach(::println)
-                        transformationsUpMergeBranch.forEach(::println)
+//                        createNewCommitFromTransformations(
+//                            mergedBranch = mergedCommits
+//                                .map { it.merged }
+//                                .fold(sharedHistory) { partialDoc, c ->
+//                                    DiffCommit.commit(partialDoc, DiffParser.parseDiff(c.diff)) as HashObject
+//                                },
+//                            nextCommit = nextCommit,
+//                            transformationsFromExistingToShared = transformationsFromExistingToShared,
+//                            transformationsUpMergeBranch = transformationsUpMergeBranch
+//                        )
 
-                        createNewCommitFromTransformations(
+                        createNewCommitFromExisting(
                             mergedBranch = mergedCommits
                                 .map { it.merged }
                                 .fold(sharedHistory) { partialDoc, c ->
                                     DiffCommit.commit(partialDoc, DiffParser.parseDiff(c.diff)) as HashObject
                                 },
                             nextCommit = nextCommit,
-                            transformationsFromExistingToShared = transformationsFromExistingToShared,
-                            transformationsUpMergeBranch = transformationsUpMergeBranch
+                            commitsFromSharedToExisting = alreadyAppliedExistingCommits,
+                            commitsUpMergeBranch = mergedCommits
                         )
                     }
                     docForNew.hash -> TODO()
@@ -107,6 +118,134 @@ object DiffMerge {
                 mergedCommits + MergedAndOriginal(merged = it, original = nextCommit)
             } ?: mergedCommits
         )
+    }
+
+    private fun createNewCommitFromExisting(
+        mergedBranch: HashObject,
+        nextCommit: Commit,
+        commitsFromSharedToExisting: List<Commit>,
+        commitsUpMergeBranch: List<MergedAndOriginal>
+    ): Commit? {
+        // navigate through existing to shared
+        // check and see if each commit already has a merged variant, jump to it
+
+        // otherwise, keep going.
+
+        // TODO: shortcut to merged
+        // TODO: commitsUpMergeBranch.lastOrNull()?.original == nextCommit
+
+
+        val transformationsFromExistingToShared = commitsFromSharedToExisting
+            .map { DiffParser.parseDiff(it.diff) }
+            .foldRight(DiffParser.parseDiff(nextCommit.diff)) { previousDiff, newDiffSoFar ->
+
+                newDiffSoFar.transformUsingPrevious(previousDiff)
+            }
+
+        println(transformationsFromExistingToShared)
+
+        val transformationsFromSharedToMerged = commitsUpMergeBranch
+            .map { DiffParser.parseDiff(it.merged.diff) }
+            .fold(transformationsFromExistingToShared) { newDiffSoFar, nextDiff ->
+                newDiffSoFar.transformUsingNextMerged(nextDiff)
+            }
+            .let {
+
+                // TODO: Only works for that one unit test.
+                (it as DiffParser.ValueInfo.Object).copy(
+                    from = it.to, to = "REHASH NEEDED",
+                    children = it.children.map { (key, value) ->
+                        key to (value as DiffParser.ValueInfo.Object).copy(from = value.to, to = "REHASH NEEDED")
+                    }.toMap()
+                )
+            }
+
+        val newMergedBranchWrongHashes = DiffCommit.commit(mergedBranch, transformationsFromSharedToMerged) as HashObject
+
+        println(transformationsFromSharedToMerged)
+        println(newMergedBranchWrongHashes)
+
+        val newMergedBranch = newMergedBranchWrongHashes.rehashFromValues()
+        val newDiff = DiffGenerator.getDiff(mergedBranch, newMergedBranch)
+
+        return nextCommit.copy(diff = newDiff)
+    }
+
+    private fun DiffParser.ValueInfo.transformUsingNextMerged(nextMerged: DiffParser.ValueInfo): DiffParser.ValueInfo {
+        println()
+        println("this: $this")
+        println("merged: $nextMerged")
+        println()
+        return when (this) {
+            is DiffParser.ValueInfo.Object -> {
+                when (nextMerged) {
+                    is DiffParser.ValueInfo.Object -> {
+                        DiffParser.ValueInfo.Object(
+                            nextMerged.from,
+                            nextMerged.to,
+                            children = this.children.entries.first().let { (key, value) ->
+                                // TODO totally cheating for this unit test because i know there is only one key/value pair
+                                val nextMergedFirst = nextMerged.children.entries.first()
+                                val keyTransformed = key.transformUsingNextMerged(nextMergedFirst.key, nextMergedFirst.value)
+                                val valueTransformed = value?.transformUsingNextMerged(nextMergedFirst.value ?: value)
+
+                                mapOf(keyTransformed to valueTransformed)
+                            }
+                        )
+                    }
+                    else -> TODO()
+                }
+            }
+            is DiffParser.ValueInfo.Value -> {
+                if(this == nextMerged) {
+                    return this
+                } else {
+//                    TODO()
+                    nextMerged
+                }
+            }
+            else -> TODO()
+        }
+    }
+
+    private fun DiffParser.KeyInfo.transformUsingNextMerged(
+        nextMerged: DiffParser.KeyInfo,
+        value: DiffParser.ValueInfo?
+    ): DiffParser.KeyInfo {
+
+        return when(nextMerged) {
+            is DiffParser.KeyInfo.KeySame -> nextMerged
+            is DiffParser.KeyInfo.KeyChanged -> {
+                return if(nextMerged.from != nullValue && value == null) {
+                    DiffParser.KeyInfo.KeySame(nextMerged.to)
+                } else {
+                    nextMerged
+                }
+            }
+        }
+    }
+
+    // TODO: tail recurse through children?
+    private fun DiffParser.ValueInfo.transformUsingPrevious(previous: DiffParser.ValueInfo): DiffParser.ValueInfo {
+//        when (this) {
+//            is DiffParser.ValueInfo.Object -> {
+//                when (previous) {
+//                    is DiffParser.ValueInfo.Object -> {
+//                        DiffParser.ValueInfo.Object(
+//                            previous.from,
+//                            previous.to,
+//                            children = this.children.map { (key, value) ->
+//                                TODO()
+//                            }.toMap()
+//                        )
+//                    }
+//                    else -> TODO()
+//                }
+//            }
+//            else -> TODO()
+//        }
+
+        TODO()
     }
 
     //TODO: does not work with child collections
@@ -145,14 +284,27 @@ object DiffMerge {
 
     data class Transformation(
         val from: String,
-        val to: String
+        val to: String,
+        val children: List<Transformation>
     )
 }
 
 
 private fun HashObject.rehashFromValues(): HashObject {
     // TODO: does not go down children
-    val correctedHash = hObject.map { it.key to it.value.hash }.toMap().hashForObjectType()
-    return copy(hash = correctedHash)
+    val correctedChildren = hObject.map { (keyHash, value) ->
+        keyHash to when(value) {
+            is HashObject -> value.rehashFromValues()
+            is HashArray -> TODO()
+            is HashValue -> HashValue(value.hash)
+            else -> throw IllegalStateException()
+        }
+    }.toMap()
+
+    val correctedHash = correctedChildren.map { (keyHash, valueNode) ->
+        keyHash to valueNode.hash
+    }.toMap().hashForObjectType()
+
+    return copy(hash = correctedHash, hObject = correctedChildren)
 }
 

@@ -142,16 +142,18 @@ object DiffMerge {
             from = this.to,
             to = "REHASH NEEDED",
             children = this.children.map { (key, value) ->
-                val rehashNeededIfCollection = when(value) {
+                val rehashNeededIfCollection = when (value) {
                     is DiffParser.ValueInfo.Object -> value.requestRehash()
-                    is DiffParser.ValueInfo.Array -> TODO()
-                    is DiffParser.ValueInfo.Value -> value
-                    is DiffParser.ValueInfo.ObjectToArray -> TODO()
-                    is DiffParser.ValueInfo.ObjectToValue -> value
                     is DiffParser.ValueInfo.ArrayToObject -> TODO()
-                    is DiffParser.ValueInfo.ArrayToValue -> value
                     is DiffParser.ValueInfo.ValueToObject -> TODO()
+
+                    is DiffParser.ValueInfo.Array -> TODO()
+                    is DiffParser.ValueInfo.ObjectToArray -> TODO()
                     is DiffParser.ValueInfo.ValueToArray -> TODO()
+
+                    is DiffParser.ValueInfo.Value -> value
+                    is DiffParser.ValueInfo.ArrayToValue -> value
+                    is DiffParser.ValueInfo.ObjectToValue -> value
                     null -> null
                 }
                 key to rehashNeededIfCollection
@@ -171,15 +173,44 @@ object DiffMerge {
                         DiffParser.ValueInfo.Object(
                             nextMerged.from,
                             nextMerged.to,
-                            children = this.children.entries.first().let { (key, value) ->
-                                // TODO totally cheating for this unit test because i know there is only one key/value pair
-                                val nextMergedFirst = nextMerged.children.entries.first()
-                                val keyTransformed =
-                                    key.transformUsingNextMerged(nextMergedFirst.key, nextMergedFirst.value)
-                                val valueTransformed = value?.transformUsingNextMerged(nextMergedFirst.value ?: value)
+                            children = this.children
+                                .map { (key, value) ->
+                                    val matchingMerged = nextMerged
+                                        .children.entries
+                                        .firstOrNull { (nextKey, nextValue) ->
 
-                                mapOf(keyTransformed to valueTransformed)
-                            }
+                                            // TODO: refactor
+                                            if (key is DiffParser.KeyInfo.KeySame && key == nextKey) {
+                                                true
+                                            } else if (key is DiffParser.KeyInfo.KeySame
+                                                && nextKey is DiffParser.KeyInfo.KeyChanged
+                                                && key.hash == nextKey.from
+                                            ) {
+                                                true
+                                            } else if (key is DiffParser.KeyInfo.KeyChanged
+                                                && nextKey is DiffParser.KeyInfo.KeyChanged
+                                                && key.to == nextKey.from
+                                            ) {
+                                                true
+                                            } else if (false) {
+                                                TODO()
+                                            } else {
+                                                false
+                                            }
+                                        }
+
+                                    when (matchingMerged == null) {
+                                        true -> key to value
+                                        false -> {
+                                            val keyTransformed =
+                                                key.transformUsingNextMerged(matchingMerged.key, matchingMerged.value)
+                                            val valueTransformed =
+                                                value?.transformUsingNextMerged(matchingMerged.value ?: value)
+
+                                            keyTransformed to valueTransformed
+                                        }
+                                    }
+                                }.toMap()
                         )
                     }
                     else -> TODO()

@@ -18,7 +18,7 @@ data class JObject(val keyValues: Map<JValue, Node>) : Node {
 }
 
 fun Map<String, String>.hashForObjectType(): String {
-    return this.map { it.key + it.value }.joinToString()
+    return this.toSortedMap().map { it.key + it.value }.joinToString()
         .let { "${it}object" }
         .let(DigestUtils::md5Hex)
 }

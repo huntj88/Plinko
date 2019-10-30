@@ -10,7 +10,6 @@ object DiffMerge {
         val existingCommits = masterCommits.takeLastWhile {
             it.diff.commitHashTo() != commonAncestorHash
         }
-        existingCommits.forEach(::println)
 
         val sharedCommits = masterCommits - existingCommits
         val sharedHistory = sharedCommits
@@ -100,11 +99,6 @@ object DiffMerge {
         commitsFromSharedToExisting: List<Commit>,
         commitsUpMergeBranch: List<MergedAndOriginal>
     ): Commit? {
-        // navigate through existing to shared
-        // check and see if each commit already has a merged variant, jump to it
-
-        // otherwise, keep going.
-
         // TODO: shortcut to merged
         // TODO: commitsUpMergeBranch.lastOrNull()?.original == nextCommit
 
@@ -112,11 +106,8 @@ object DiffMerge {
         val transformationsFromExistingToShared = commitsFromSharedToExisting
             .map { DiffParser.parseDiff(it.diff) }
             .foldRight(DiffParser.parseDiff(nextCommit.diff)) { previousDiff, newDiffSoFar ->
-
                 newDiffSoFar.transformUsingPrevious(previousDiff)
             }
-
-        println(transformationsFromExistingToShared)
 
         val transformationsFromSharedToMerged = commitsUpMergeBranch
             .map { DiffParser.parseDiff(it.merged.diff) }
@@ -128,9 +119,6 @@ object DiffMerge {
         val newMergedBranchWrongHashes =
             DiffCommit.commit(mergedBranch, transformationsFromSharedToMerged) as HashObject
 
-        println(transformationsFromSharedToMerged)
-        println(newMergedBranchWrongHashes)
-
         val newMergedBranch = newMergedBranchWrongHashes.rehashFromValues()
         val newDiff = DiffGenerator.getDiff(mergedBranch, newMergedBranch)
 
@@ -138,10 +126,6 @@ object DiffMerge {
     }
 
     private fun DiffParser.ValueInfo.transformUsingNextMerged(nextMerged: DiffParser.ValueInfo): DiffParser.ValueInfo {
-        println()
-        println("this: $this")
-        println("merged: $nextMerged")
-        println()
         return when (this) {
             is DiffParser.ValueInfo.Object -> {
                 when (nextMerged) {
@@ -202,7 +186,6 @@ object DiffMerge {
         nextMerged: DiffParser.KeyInfo,
         value: DiffParser.ValueInfo?
     ): DiffParser.KeyInfo {
-
         return when (nextMerged) {
             is DiffParser.KeyInfo.KeySame -> nextMerged
             is DiffParser.KeyInfo.KeyChanged -> {
@@ -215,27 +198,9 @@ object DiffMerge {
         }
     }
 
-    // TODO: tail recurse through children?
     private fun DiffParser.ValueInfo.transformUsingPrevious(previous: DiffParser.ValueInfo): DiffParser.ValueInfo {
-//        when (this) {
-//            is DiffParser.ValueInfo.Object -> {
-//                when (previous) {
-//                    is DiffParser.ValueInfo.Object -> {
-//                        DiffParser.ValueInfo.Object(
-//                            previous.from,
-//                            previous.to,
-//                            children = this.children.map { (key, value) ->
-//                                TODO()
-//                            }.toMap()
-//                        )
-//                    }
-//                    else -> TODO()
-//                }
-//            }
-//            else -> TODO()
-//        }
-
-        TODO()
+        // CAN I REALLY DO THIS??
+        return this.transformUsingNextMerged(previous)
     }
 
     private fun DiffParser.ValueInfo.Object.requestRehash(): DiffParser.ValueInfo.Object {
@@ -269,12 +234,6 @@ object DiffMerge {
     private fun Map<String, Any>.commitHashFrom(): String = this["hash"]
         .let { it as Map<String, String> }
         .let { it["from"]!! }
-
-    data class Transformation(
-        val from: String,
-        val to: String,
-        val children: List<Transformation>
-    )
 }
 
 

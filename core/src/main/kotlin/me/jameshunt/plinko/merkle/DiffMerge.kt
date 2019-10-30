@@ -137,30 +137,6 @@ object DiffMerge {
         return nextCommit.copy(diff = newDiff)
     }
 
-    private fun DiffParser.ValueInfo.Object.requestRehash(): DiffParser.ValueInfo.Object {
-        return copy(
-            from = this.to,
-            to = "REHASH NEEDED",
-            children = this.children.map { (key, value) ->
-                val rehashNeededIfCollection = when (value) {
-                    is DiffParser.ValueInfo.Object -> value.requestRehash()
-                    is DiffParser.ValueInfo.ArrayToObject -> TODO()
-                    is DiffParser.ValueInfo.ValueToObject -> TODO()
-
-                    is DiffParser.ValueInfo.Array -> TODO()
-                    is DiffParser.ValueInfo.ObjectToArray -> TODO()
-                    is DiffParser.ValueInfo.ValueToArray -> TODO()
-
-                    is DiffParser.ValueInfo.Value -> value
-                    is DiffParser.ValueInfo.ArrayToValue -> value
-                    is DiffParser.ValueInfo.ObjectToValue -> value
-                    null -> null
-                }
-                key to rehashNeededIfCollection
-            }.toMap()
-        )
-    }
-
     private fun DiffParser.ValueInfo.transformUsingNextMerged(nextMerged: DiffParser.ValueInfo): DiffParser.ValueInfo {
         println()
         println("this: $this")
@@ -260,6 +236,30 @@ object DiffMerge {
 //        }
 
         TODO()
+    }
+
+    private fun DiffParser.ValueInfo.Object.requestRehash(): DiffParser.ValueInfo.Object {
+        return copy(
+            from = this.to,
+            to = "REHASH NEEDED",
+            children = this.children.map { (key, value) ->
+                val rehashNeededIfCollection = when (value) {
+                    is DiffParser.ValueInfo.Object -> value.requestRehash()
+                    is DiffParser.ValueInfo.ArrayToObject -> TODO()
+                    is DiffParser.ValueInfo.ValueToObject -> TODO()
+
+                    is DiffParser.ValueInfo.Array -> TODO()
+                    is DiffParser.ValueInfo.ObjectToArray -> TODO()
+                    is DiffParser.ValueInfo.ValueToArray -> TODO()
+
+                    is DiffParser.ValueInfo.Value -> value
+                    is DiffParser.ValueInfo.ArrayToValue -> value
+                    is DiffParser.ValueInfo.ObjectToValue -> value
+                    null -> null
+                }
+                key to rehashNeededIfCollection
+            }.toMap()
+        )
     }
 
     private fun Map<String, Any>.commitHashTo(): String = this["hash"]

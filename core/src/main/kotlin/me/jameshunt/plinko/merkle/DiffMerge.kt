@@ -118,8 +118,7 @@ object DiffMerge {
             }
             .let { (it as ValueInfo.Object).requestRehash() }
 
-        val newMergedBranchWrongHashes =
-            DiffCommit.commit(mergedBranch, transformationsFromSharedToMerged) as HashObject
+        val newMergedBranchWrongHashes = DiffCommit.commit(mergedBranch, transformationsFromSharedToMerged) as HashObject
 
         val newMergedBranch = newMergedBranchWrongHashes.rehashFromValues()
         val newDiff = DiffGenerator.getDiff(mergedBranch, newMergedBranch)
@@ -175,11 +174,12 @@ object DiffMerge {
                 }
             }
             is ValueInfo.Value -> {
-                if (this == nextMerged) {
-                    return this
-                } else {
-//                    TODO()
-                    nextMerged
+                when(nextMerged) {
+                    is ValueInfo.Value -> nextMerged
+                    is ValueInfo.ValueToObject -> {
+                        TODO("change to objectToValue and delete object")
+                    }
+                    else -> TODO("$nextMerged")
                 }
             }
             else -> TODO()
@@ -208,14 +208,24 @@ object DiffMerge {
     }
 
     private fun ValueInfo.Object.requestRehash(): ValueInfo.Object {
-        return copy(
+        return ValueInfo.Object(
             from = this.to,
             to = "REHASH NEEDED",
             children = this.children.map { (key, value) ->
                 val rehashNeededIfCollection = when (value) {
                     is ValueInfo.Object -> value.requestRehash()
                     is ValueInfo.ArrayToObject -> TODO()
-                    is ValueInfo.ValueToObject -> TODO()
+                    is ValueInfo.ValueToObject -> DiffParser.ValueInfo.Object(
+                        from = value.from,
+                        to = value.to,
+                        children = value.objectChildren
+                    ).requestRehash().let {
+                        DiffParser.ValueInfo.ValueToObject(
+                            from = it.from,
+                            to = it.to,
+                            objectChildren = it.children
+                        )
+                    }
 
                     is ValueInfo.Array -> TODO()
                     is ValueInfo.ObjectToArray -> TODO()

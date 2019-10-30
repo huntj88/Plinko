@@ -52,7 +52,7 @@ class DiffMergeTest {
     }
 
     @Test
-    fun `test second cherry-pick up existing branch when new is first`() {
+    fun `test cherry-pick 3 commits up existing branch when new is first`() {
         val commit1 = Commit(
             documentId = 20,
             createdAt = OffsetDateTime.now(),
@@ -62,7 +62,7 @@ class DiffMergeTest {
             )
         )
 
-        val commit2ButSyncAfter4 = Commit(
+        val commit2ButSyncAfter5 = Commit(
             documentId = 20,
             createdAt = OffsetDateTime.now(),
             diff = DiffGenerator.getDiff(
@@ -89,9 +89,26 @@ class DiffMergeTest {
             )
         )
 
+        val commit5 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                first = JsonParser.read(mapOf("cool" to true, "wow" to "not null")).toHashObject(),
+                second = JsonParser.read(
+                    mapOf(
+                        "cool" to true,
+                        "wow" to "not null",
+                        "child" to mapOf(
+                            "wow" to null
+                        )
+                    )
+                ).toHashObject()
+            )
+        )
+
         val newMasterCommits = DiffMerge.mergeMasterWith(
-            masterCommits = listOf(commit1, commit3, commit4).also { println(it) },
-            newCommits = listOf(commit2ButSyncAfter4).also { println(it) }
+            masterCommits = listOf(commit1, commit3, commit4, commit5).also { println(it) },
+            newCommits = listOf(commit2ButSyncAfter5).also { println(it) }
         )
 
         val initialDocument = HashObject(nullValue, emptyMap())
@@ -99,7 +116,14 @@ class DiffMergeTest {
             DiffCommit.commit(partialDocument, DiffParser.parseDiff(c.diff)) as HashObject
         }
 
-        val expected = JsonParser.read(mapOf("wow" to "not null")).toHashObject()
+        val expected = JsonParser.read(
+            mapOf(
+                "wow" to "not null",
+                "child" to mapOf(
+                    "wow" to null
+                )
+            )
+        ).toHashObject()
 
         println(newMasterBranch)
         Assert.assertEquals(expected, newMasterBranch)
@@ -211,5 +235,110 @@ class DiffMergeTest {
         Assert.assertEquals(expected, newMasterBranch)
     }
 
-    //TODO: test for changing key in object
+    @Test
+    fun `test changing value to object`() {
+        val commit1 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                first = HashObject(nullValue, emptyMap()),
+                second = JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject()
+            )
+        )
+
+        val commit2ButSyncAfter3 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject(),
+                JsonParser.read(mapOf("cool" to mapOf("hey" to mapOf<String, String>()))).toHashObject()
+            )
+        )
+
+        val commit3 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                first = JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject(),
+                second = JsonParser.read(mapOf("cool" to mapOf("hey" to "there", "sup" to "there dog"))).toHashObject()
+            )
+        )
+
+        val expected = JsonParser.read(
+            mapOf(
+                "cool" to mapOf(
+                    "hey" to mapOf<String, String>(),
+                    "sup" to "there dog"
+                )
+            )
+        ).toHashObject()
+
+        println("expected:  $expected")
+
+        val newMasterCommits = DiffMerge.mergeMasterWith(
+            masterCommits = listOf(commit1, commit3).also { println(it) },
+            newCommits = listOf(commit2ButSyncAfter3).also { println(it) }
+        )
+
+        val initialDocument = HashObject(nullValue, emptyMap())
+        val newMasterBranch = newMasterCommits.fold(initialDocument) { partialDocument, c ->
+            DiffCommit.commit(partialDocument, DiffParser.parseDiff(c.diff)) as HashObject
+        }
+
+        println(newMasterBranch)
+        Assert.assertEquals(expected, newMasterBranch)
+    }
+
+    @Test
+    fun `override object with value`() {
+        val commit1 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                first = HashObject(nullValue, emptyMap()),
+                second = JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject()
+            )
+        )
+
+        val commit2ButSyncAfter3 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject(),
+                JsonParser.read(mapOf("cool" to mapOf("hey" to mapOf("delete" to "the object i'm in")))).toHashObject()
+            )
+        )
+
+        val commit3 = Commit(
+            documentId = 20,
+            createdAt = OffsetDateTime.now(),
+            diff = DiffGenerator.getDiff(
+                first = JsonParser.read(mapOf("cool" to mapOf("hey" to "there"))).toHashObject(),
+                second = JsonParser.read(mapOf("cool" to mapOf("hey" to "there dog"))).toHashObject()
+            )
+        )
+
+        val expected = JsonParser.read(
+            mapOf(
+                "cool" to mapOf(
+                    "hey" to "there dog"
+                )
+            )
+        ).toHashObject()
+
+        println("expected:  $expected")
+
+        val newMasterCommits = DiffMerge.mergeMasterWith(
+            masterCommits = listOf(commit1, commit3).also { println(it) },
+            newCommits = listOf(commit2ButSyncAfter3).also { println(it) }
+        )
+
+        val initialDocument = HashObject(nullValue, emptyMap())
+        val newMasterBranch = newMasterCommits.fold(initialDocument) { partialDocument, c ->
+            DiffCommit.commit(partialDocument, DiffParser.parseDiff(c.diff)) as HashObject
+        }
+
+        println(newMasterBranch)
+        Assert.assertEquals(expected, newMasterBranch)
+    }
 }

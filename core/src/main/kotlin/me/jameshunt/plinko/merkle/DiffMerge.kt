@@ -177,26 +177,20 @@ object DiffMerge {
                                 .map { (key, value) ->
                                     val matchingMerged = nextMerged
                                         .children.entries
-                                        .firstOrNull { (nextKey, nextValue) ->
-
-                                            // TODO: refactor
+                                        .firstOrNull { (nextKey, _) ->
                                             if (key is DiffParser.KeyInfo.KeySame && key == nextKey) {
                                                 true
                                             } else if (key is DiffParser.KeyInfo.KeySame
                                                 && nextKey is DiffParser.KeyInfo.KeyChanged
-                                                && key.hash == nextKey.from
-                                            ) {
+                                                && key.hash == nextKey.from) {
                                                 true
                                             } else if (key is DiffParser.KeyInfo.KeyChanged
                                                 && nextKey is DiffParser.KeyInfo.KeyChanged
-                                                && key.to == nextKey.from
-                                            ) {
+                                                && key.to == nextKey.from) {
                                                 true
-                                            } else if (false) {
-                                                TODO()
-                                            } else {
-                                                false
-                                            }
+                                            } else key is DiffParser.KeyInfo.KeyChanged
+                                                && nextKey is DiffParser.KeyInfo.KeySame
+                                                && key.to == nextKey.hash
                                         }
 
                                     when (matchingMerged == null) {

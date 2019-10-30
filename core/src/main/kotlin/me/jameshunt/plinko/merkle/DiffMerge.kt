@@ -1,5 +1,7 @@
 package me.jameshunt.plinko.merkle
 
+import me.jameshunt.plinko.merkle.DiffParser.KeyInfo
+import me.jameshunt.plinko.merkle.DiffParser.ValueInfo
 import me.jameshunt.plinko.store.domain.Commit
 
 object DiffMerge {
@@ -114,7 +116,7 @@ object DiffMerge {
             .fold(transformationsFromExistingToShared) { newDiffSoFar, nextDiff ->
                 newDiffSoFar.transformUsingNextMerged(nextDiff)
             }
-            .let { (it as DiffParser.ValueInfo.Object).requestRehash() }
+            .let { (it as ValueInfo.Object).requestRehash() }
 
         val newMergedBranchWrongHashes =
             DiffCommit.commit(mergedBranch, transformationsFromSharedToMerged) as HashObject
@@ -125,11 +127,11 @@ object DiffMerge {
         return nextCommit.copy(diff = newDiff)
     }
 
-    private fun DiffParser.ValueInfo.transformUsingNextMerged(nextMerged: DiffParser.ValueInfo): DiffParser.ValueInfo {
+    private fun ValueInfo.transformUsingNextMerged(nextMerged: ValueInfo): ValueInfo {
         return when (this) {
-            is DiffParser.ValueInfo.Object -> {
+            is ValueInfo.Object -> {
                 when (nextMerged) {
-                    is DiffParser.ValueInfo.Object -> {
+                    is ValueInfo.Object -> {
                         DiffParser.ValueInfo.Object(
                             nextMerged.from,
                             nextMerged.to,
@@ -138,19 +140,21 @@ object DiffMerge {
                                     val matchingMerged = nextMerged
                                         .children.entries
                                         .firstOrNull { (nextKey, _) ->
-                                            if (key is DiffParser.KeyInfo.KeySame && key == nextKey) {
-                                                true
-                                            } else if (key is DiffParser.KeyInfo.KeySame
-                                                && nextKey is DiffParser.KeyInfo.KeyChanged
-                                                && key.hash == nextKey.from) {
-                                                true
-                                            } else if (key is DiffParser.KeyInfo.KeyChanged
-                                                && nextKey is DiffParser.KeyInfo.KeyChanged
-                                                && key.to == nextKey.from) {
-                                                true
-                                            } else key is DiffParser.KeyInfo.KeyChanged
-                                                && nextKey is DiffParser.KeyInfo.KeySame
-                                                && key.to == nextKey.hash
+                                            when {
+                                                key is KeyInfo.KeySame && key == nextKey -> true
+                                                key is KeyInfo.KeySame
+                                                        && nextKey is KeyInfo.KeyChanged
+                                                        && key.hash == nextKey.from -> true
+
+                                                key is KeyInfo.KeyChanged
+                                                        && nextKey is KeyInfo.KeyChanged
+                                                        && key.to == nextKey.from -> true
+
+                                                key is KeyInfo.KeyChanged
+                                                        && nextKey is KeyInfo.KeySame
+                                                        && key.to == nextKey.hash -> true
+                                                else -> false
+                                            }
                                         }
 
                                     when (matchingMerged == null) {
@@ -170,7 +174,7 @@ object DiffMerge {
                     else -> TODO()
                 }
             }
-            is DiffParser.ValueInfo.Value -> {
+            is ValueInfo.Value -> {
                 if (this == nextMerged) {
                     return this
                 } else {
@@ -182,13 +186,13 @@ object DiffMerge {
         }
     }
 
-    private fun DiffParser.KeyInfo.transformUsingNextMerged(
-        nextMerged: DiffParser.KeyInfo,
-        value: DiffParser.ValueInfo?
-    ): DiffParser.KeyInfo {
+    private fun KeyInfo.transformUsingNextMerged(
+        nextMerged: KeyInfo,
+        value: ValueInfo?
+    ): KeyInfo {
         return when (nextMerged) {
-            is DiffParser.KeyInfo.KeySame -> nextMerged
-            is DiffParser.KeyInfo.KeyChanged -> {
+            is KeyInfo.KeySame -> nextMerged
+            is KeyInfo.KeyChanged -> {
                 return if (nextMerged.from != nullValue && value == null) {
                     DiffParser.KeyInfo.KeySame(nextMerged.to)
                 } else {
@@ -198,28 +202,28 @@ object DiffMerge {
         }
     }
 
-    private fun DiffParser.ValueInfo.transformUsingPrevious(previous: DiffParser.ValueInfo): DiffParser.ValueInfo {
+    private fun ValueInfo.transformUsingPrevious(previous: ValueInfo): ValueInfo {
         // CAN I REALLY DO THIS??
         return this.transformUsingNextMerged(previous)
     }
 
-    private fun DiffParser.ValueInfo.Object.requestRehash(): DiffParser.ValueInfo.Object {
+    private fun ValueInfo.Object.requestRehash(): ValueInfo.Object {
         return copy(
             from = this.to,
             to = "REHASH NEEDED",
             children = this.children.map { (key, value) ->
                 val rehashNeededIfCollection = when (value) {
-                    is DiffParser.ValueInfo.Object -> value.requestRehash()
-                    is DiffParser.ValueInfo.ArrayToObject -> TODO()
-                    is DiffParser.ValueInfo.ValueToObject -> TODO()
+                    is ValueInfo.Object -> value.requestRehash()
+                    is ValueInfo.ArrayToObject -> TODO()
+                    is ValueInfo.ValueToObject -> TODO()
 
-                    is DiffParser.ValueInfo.Array -> TODO()
-                    is DiffParser.ValueInfo.ObjectToArray -> TODO()
-                    is DiffParser.ValueInfo.ValueToArray -> TODO()
+                    is ValueInfo.Array -> TODO()
+                    is ValueInfo.ObjectToArray -> TODO()
+                    is ValueInfo.ValueToArray -> TODO()
 
-                    is DiffParser.ValueInfo.Value -> value
-                    is DiffParser.ValueInfo.ArrayToValue -> value
-                    is DiffParser.ValueInfo.ObjectToValue -> value
+                    is ValueInfo.Value -> value
+                    is ValueInfo.ArrayToValue -> value
+                    is ValueInfo.ObjectToValue -> value
                     null -> null
                 }
                 key to rehashNeededIfCollection
